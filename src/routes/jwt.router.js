@@ -1,6 +1,6 @@
 import { Router } from "express";
 import passport from "passport";
-import { generateToken, SIGNED_COOKIE_KEY } from "../utils.js";
+import { generateToken, passportCallCurrent, SIGNED_COOKIE_KEY } from "../utils.js";
 
 const router = Router();
 
@@ -76,6 +76,15 @@ router.get("/logout", (req, res) => {
 
 router.get("/error", (req, res) => {
   res.render("errors/errorPage");
+});
+
+router.get("/current", passportCallCurrent("current"), (req, res) => {
+  if (!req.user) {
+    // Si no hay usuario autenticado, retornar un mensaje de error
+    return res.status(401).json({ status: "error", error: "No user with an active session" });
+  }
+  // Si hay un usuario autenticado, retornar los datos del usuario en el payload
+  res.status(200).json({ status: "success", payload: req.user });
 });
 
 export default router;

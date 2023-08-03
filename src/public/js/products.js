@@ -1,5 +1,8 @@
 const socket = io();
-const cart = "64b21a4bd015ca7e88ea7fee";
+
+const cartLink = document.getElementById("cart");
+const hrefValue = cartLink.getAttribute("href");
+const cart = hrefValue.match(/\/products\/carts\/(.+)/)[1];
 const addCart = async (id) => {
   try {
     const res = await fetch(`/api/carts/${cart}/product/${id}`, {

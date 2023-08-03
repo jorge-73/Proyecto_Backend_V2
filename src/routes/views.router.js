@@ -2,11 +2,10 @@ import { Router } from "express";
 import { productModel } from "../dao/models/products.model.js";
 import messageModel from "../dao/models/messages.model.js";
 import { cartModel } from "../dao/models/carts.model.js";
-import { passportCall } from "../utils.js";
 
 const router = Router();
 
-router.get("/", passportCall("jwt"), async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 10;
     const page = parseInt(req.query.page) || 1;
@@ -51,7 +50,7 @@ router.get("/", passportCall("jwt"), async (req, res) => {
   }
 });
 
-router.get("/realTimeProducts", passportCall("jwt"), async (req, res) => {
+router.get("/realTimeProducts", async (req, res) => {
   try {
     const userRole = req.user?.user?.role;
     if (userRole !== "Admin") {
@@ -65,7 +64,7 @@ router.get("/realTimeProducts", passportCall("jwt"), async (req, res) => {
   }
 });
 
-router.get("/chat", passportCall("jwt"), async (req, res) => {
+router.get("/chat", async (req, res) => {
   try {
     const messages = await messageModel.find().lean().exec();
     res.render("chat", { messages });
@@ -75,7 +74,7 @@ router.get("/chat", passportCall("jwt"), async (req, res) => {
   }
 });
 
-router.get("/product/:pid", passportCall("jwt"), async (req, res) => {
+router.get("/product/:pid", async (req, res) => {
   try {
     const pid = req.params.pid;
     const product = await productModel.findById(pid).lean().exec();
@@ -89,7 +88,7 @@ router.get("/product/:pid", passportCall("jwt"), async (req, res) => {
   }
 });
 
-router.get("/carts/:cid", passportCall("jwt"), async (req, res) => {
+router.get("/carts/:cid", async (req, res) => {
   try {
     const cid = req.params.cid;
     const cart = await cartModel.findById(cid).lean().exec();
