@@ -1,4 +1,4 @@
-# Proyecto_Backend_V2
+# Segunda práctica integradora
 
 ## Agregar el archivo .env con las siguientes variables de entorno y sus datos correspondientes: 
 - MONGO_URI
