@@ -78,7 +78,12 @@ router.get("/product/:pid", async (req, res) => {
   try {
     const pid = req.params.pid;
     const product = await productModel.findById(pid).lean().exec();
-    res.render("product", { product });
+    const user = req.user.user;
+    let userAdmin;
+    if (user) {
+      userAdmin = user?.role === "Admin" ? true : false;
+    }
+    res.render("product", { product, user, userAdmin });
     if (product === null) {
       return res.status(404).json({ error: `The product does not exist` });
     }

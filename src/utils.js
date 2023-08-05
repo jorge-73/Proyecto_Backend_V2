@@ -56,7 +56,6 @@ export const passportCall = (strategy) => {
   };
 };
 
-
 export const passportCallCurrent = (strategy) => {
   return async (req, res, next) => {
     passport.authenticate(strategy, { session: false }, function (err, user, info) {
