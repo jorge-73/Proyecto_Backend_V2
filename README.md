@@ -1,4 +1,4 @@
-# Segunda práctica integradora
+# Reestructura del servidor
 
 ## Agregar el archivo .env con las siguientes variables de entorno y sus datos correspondientes: 
 - MONGO_URI
