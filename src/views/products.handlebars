@@ -1,34 +1,39 @@
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
   <div class="container-fluid">
-    <a class="navbar-brand btn btn-warning rounded-pill fw-bold"
-      href="/products/carts/{{user.cart}}" id="cart">Cart</a>
+    <a class="navbar-brand btn btn-secondary text-white rounded-pill fw-bold" href="/products/carts/{{user.cart}}" id="cart">Cart</a>
 
-    {{#if userAdmin}}
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link btn btn-outline-warning rounded-pill fw-bold" href="/products/realTimeProducts">RealTimeProducts</a>
+          <a class="btn btn-warning rounded-pill mx-1 fw-bold" href="/api/jwt/current">Profile</a>
         </li>
+        {{#if userAdmin}}
+        <li class="nav-item">
+          <a class="btn btn-warning rounded-pill mx-1 fw-bold"
+            href="/products/realTimeProducts">RealTimeProducts</a>
+        </li>
+        {{/if}}
       </ul>
-    {{/if}}
 
-    {{#if user}}
-    <a href="/api/jwt/logout" class="btn btn-secondary rounded-pill fw-bold ms-auto me-3">Logout</a>
-    {{else}}
-    <a href="/api/jwt/login" class="btn btn-secondary rounded-pill fw-bold ms-auto me-3">Login</a>
-    {{/if}}
-  </div>
+
+      {{#if user}}
+      <a href="/api/jwt/logout" class="btn btn-secondary rounded-pill fw-bold ms-auto me-3">Logout</a>
+      {{else}}
+      <a href="/api/jwt/login" class="btn btn-secondary rounded-pill fw-bold ms-auto me-3">Login</a>
+      {{/if}}
+    </div>
   </div>
 </nav>
 
 {{#if user}}
-  <div class="p-3 m-1 border border-dark rounded-3 d-inline-block shadow">
-    <h1>Welcome {{user.role}}: {{user.first_name}} {{user.last_name}} !</h1>
-  </div>
-  {{/if}}
+<div class="p-3 m-1 border border-dark rounded-3 d-inline-block shadow">
+  <h1>Welcome {{user.role}}: {{user.first_name}} {{user.last_name}} !</h1>
+</div>
+{{/if}}
 
 <div class="container py-5">
 

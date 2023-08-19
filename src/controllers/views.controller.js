@@ -5,7 +5,6 @@ import { getChatService } from "../services/chats.service.js";
 export const getProductsViewsController = async (req, res) => {
   try {
     const products = await getProductsService(req);
-    // console.log(products.payload.map(prod => console.log(prod.thumbnails[0])));
     const user = req.user.user;
     let userAdmin;
     if (user) {
