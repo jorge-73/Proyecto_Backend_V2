@@ -17,6 +17,7 @@ form.addEventListener("submit", async (e) => {
     if (!res.ok) {
       throw new Error(result.error);
     } else {
+      console.log(res);
       // Obtener la lista actualizada de productos desde el servidor
       const resultProducts = await fetch("/api/products?limit=100");
       const results = await resultProducts.json();
@@ -24,7 +25,7 @@ form.addEventListener("submit", async (e) => {
         throw new Error(results.error);
       } else {
         // Emitir el evento "productList" con la lista de productos actualizada
-        socket.emit("productList", results.payload);
+        socket.emit("productList", results.payload.payload);
 
         // Mostrar notificación de éxito
         Toastify({
@@ -57,7 +58,7 @@ const deleteProduct = async (id) => {
     });
     const result = await res.json();
     if (result.status === "error") throw new Error(result.error);
-    else socket.emit("productList", result.products);
+    else socket.emit("productList", result.payload);
 
     // Mostrar notificación de éxito
     Toastify({
@@ -82,7 +83,7 @@ const deleteProduct = async (id) => {
 socket.on("updatedProducts", (products) => {
   // Limpiar el contenido de tbody
   tbody.innerHTML = "";
-
+  // console.log(products);
   // Agregar los nuevos productos a tbody
   products.forEach((item) => {
     const row = document.createElement("tr");

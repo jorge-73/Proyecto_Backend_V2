@@ -3,17 +3,17 @@ import local from "passport-local";
 import GithubStrategy from "passport-github2";
 import jwt from "passport-jwt";
 import { userModel } from "../dao/models/users.model.js";
+import { cartModel } from "../dao/models/carts.model.js";
 import bcrypt from "bcrypt";
+import { isValidPassword, generateToken, createHash } from "../utils.js";
 import {
+  SIGNED_COOKIE_KEY,
+  PRIVATE_KEY,
+  ADMIN_EMAIL,
+  ADMIN_PASSWORD,
   JWT_CLIENT_ID,
   JWT_CLIENT_SECRET,
-  PRIVATE_KEY,
-  SIGNED_COOKIE_KEY,
-  createHash,
-  generateToken,
-  isValidPassword,
-} from "../utils.js";
-import { cartModel } from "../dao/models/carts.model.js";
+} from "./config.js";
 
 const LocalStrategy = local.Strategy;
 
@@ -21,7 +21,7 @@ const JWTStrategy = jwt.Strategy;
 const ExtractJWT = jwt.ExtractJwt;
 
 let token = null;
-const cookieExtractor = (req) => {
+export const cookieExtractor = (req) => {
   token =
     req && req.signedCookies ? req.signedCookies[SIGNED_COOKIE_KEY] : null;
   return token;
@@ -52,10 +52,10 @@ const initializePassport = () => {
             cart: cartNewUser._id,
           };
           if (
-            newUser.email === "adminCoder@coder.com" &&
-            bcrypt.compareSync("adminCod3r123", newUser.password)
+            newUser.email === ADMIN_EMAIL &&
+            bcrypt.compareSync(ADMIN_PASSWORD, newUser.password)
           ) {
-            newUser.role = "Admin";
+            newUser.role = "admin";
           }
           const result = await userModel.create(newUser);
           return done(null, result);
@@ -94,7 +94,7 @@ const initializePassport = () => {
       {
         clientID: JWT_CLIENT_ID,
         clientSecret: JWT_CLIENT_SECRET,
-        callbackURL: "http://localhost:8080/jwt/githubcallback",
+        callbackURL: "http://localhost:8080/api/jwt/githubcallback",
       },
       async (accessTocken, refreshToken, profile, done) => {
         try {
@@ -161,10 +161,12 @@ const initializePassport = () => {
             // Si no se proporcionó un token, retornar un mensaje de error
             return done(null, false, { message: "No token provided" });
           }
-          const existingUser = await userModel.findById(user._id);
+          const existingUser = await userModel.findById(user._id).lean().exec();
           if (!existingUser) {
             // Si el usuario asociado al token no existe en la base de datos, retornar un mensaje de error
-            return done(null, false, { message: "There is no user with an active session" });
+            return done(null, false, {
+              message: "There is no user with an active session",
+            });
           }
           return done(null, existingUser);
         } catch (error) {

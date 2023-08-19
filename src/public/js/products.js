@@ -60,7 +60,7 @@ const addProductToCart = async (id, prodCart) => {
 const deleteProduct = async (id) => {
   const userCart = window.location.pathname.match(/\/products\/carts\/(.+)/)[1];
   try {
-    const res = await fetch(`/api/carts/${userCart}/products/${id}`, {
+    const res = await fetch(`/api/carts/${userCart}/product/${id}`, {
       method: "DELETE",
     });
     const result = await res.json();
@@ -144,6 +144,7 @@ const generateProductHTML = (prod) => {
          </div>
        </div>`;
 }
+
 // Escucha el evento "updatedCarts" emitido por el servidor
 socket.on("updatedCarts", (data) => {
 

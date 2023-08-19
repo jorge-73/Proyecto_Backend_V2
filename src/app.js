@@ -3,7 +3,8 @@ import handlebars from "express-handlebars";
 import mongoose from "mongoose";
 import { Server } from "socket.io";
 import cookieParser from "cookie-parser";
-import { PORT, __dirname, MONGO_DB_NAME, MONGO_URI, SECRET_PASS } from "./utils.js";
+import { __dirname } from "./utils.js";
+import {PORT, SECRET_PASS, MONGO_URI, MONGO_DB_NAME} from "./config/config.js";
 import run from "./run.js";
 import passport from "passport";
 import initializePassport from "./config/passport.config.js";
@@ -18,7 +19,7 @@ app.engine("handlebars", handlebars.engine());
 app.set("views", `${__dirname}/views`);
 app.set("view engine", "handlebars");
 
-app.use(cookieParser(SECRET_PASS))
+app.use(cookieParser(SECRET_PASS));
 initializePassport();
 app.use(passport.initialize());
 
@@ -26,7 +27,7 @@ try {
   await mongoose.connect(`${MONGO_URI}${MONGO_DB_NAME}`);
   // Iniciar el servidor HTTP
   const serverHttp = app.listen(PORT, () =>
-    console.log(`Server listening on port ${PORT}`)
+    console.log(`Server listening on port http://localhost:${PORT}`)
   );
   // Crear una instancia de Socket.IO y vincularla al servidor HTTP
   const io = new Server(serverHttp);

@@ -1,90 +1,65 @@
-import { Router } from "express";
 import passport from "passport";
-import { generateToken, passportCallCurrent, SIGNED_COOKIE_KEY } from "../utils.js";
+import {passportCallCurrent} from "../utils.js";
+import appRouter from "./router.js";
+import {
+  errorPageController,
+  failLoginController,
+  failRegisterController,
+  githubCallbackController,
+  loginGithubController,
+  userCurrentController,
+  userLoginController,
+  userLogoutController,
+  userRegisterController,
+  viewLoginController,
+  viewRegisterController,
+} from "../controllers/userJWT.controller.js";
 
-const router = Router();
+export default class JWTRouter extends appRouter {
+  init() {
+    this.post("/register", ["PUBLIC"],
+      passport.authenticate("register", {
+        session: false,
+        failureRedirect: "/api/jwt/failRegister",
+      }), userRegisterController);
+    this.get("/failRegister", ["PUBLIC"], failRegisterController);
+    //Vista para registrar usuarios por Formulario
+    this.get("/register", ["PUBLIC"], viewRegisterController);
 
-router.post(
-  "/register",
-  passport.authenticate("register", {
-    session: false,
-    failureRedirect: "/jwt/failRegister",
-  }),
-  async (req, res) => {
-    res.redirect("/jwt/login");
+    // API Login con JWT
+    this.post("/login", ["PUBLIC"],
+      passport.authenticate("login", {
+        session: false,
+        failureRedirect: "/api/jwt/failLogin",
+      }), userLoginController);
+    this.get("/failLogin", ["PUBLIC"], failLoginController);
+    // Vista de Login
+    this.get("/login", ["PUBLIC"], viewLoginController);
+
+    // Rutas para autentificacion por github
+    this.get("/github", ["PUBLIC"],
+      passport.authenticate("github", { scope: ["user:email"] }),
+      loginGithubController);
+    this.get("/githubcallback", ["PUBLIC"],
+      passport.authenticate("github", { session: false }),
+      githubCallbackController);
+
+    // Eliminar JWT
+    this.get("/logout", ["PUBLIC"], userLogoutController);
+    this.get("/error", ["PUBLIC"], errorPageController);
+
+    /* this.get("/current", passportCallCurrent("current"), (req, res) => {
+      if (!req.user) {
+        // Si no hay usuario autenticado, retornar un mensaje de error
+        return res.authFailError("No user with an active session");
+      }
+      // Si hay un usuario autenticado, retornar los datos del usuario en el payload
+      res.sendSuccess(req.user);
+    }); */
+    // Vista del Profile
+    this.get("/current", ["PUBLIC"],
+      passportCallCurrent("current"),
+      userCurrentController
+    );
   }
-);
-router.get("/failRegister", (req, res) => {
-  res.render("errors/errorPage", {
-    status: "error",
-    error: "Failed Register!",
-  });
-});
-//Vista para registrar usuarios
-router.get("/register", (req, res) => {
-  res.render("sessions/register");
-});
-
-// API JWT
-router.post(
-  "/login",
-  passport.authenticate("login", {
-    session: false,
-    failureRedirect: "/jwt/failLogin",
-  }),
-  (req, res) => {
-    // El usuario ha sido autenticado exitosamente
-    const user = req.user;
-    const access_token = generateToken(user);
-    res
-      .cookie(SIGNED_COOKIE_KEY, access_token, { signed: true })
-      .redirect("/products");
-  }
-);
-router.get("/failLogin", (req, res) => {
-  res.render("errors/errorPage", {
-    status: "error",
-    error: "Invalid Credentials",
-  });
-});
-// Vista de Login
-router.get("/login", (req, res) => {
-  res.render("sessions/login");
-});
-
-// Rutas para autentificacion por github
-router.get(
-  "/github",
-  passport.authenticate("github", { scope: ["user:email"] }),
-  async (req, res) => {}
-);
-router.get(
-  "/githubcallback",
-  passport.authenticate("github", { session: false }),
-  async (req, res) => {
-    const access_token = req.authInfo.token;
-    res
-      .cookie(SIGNED_COOKIE_KEY, access_token, { signed: true })
-      .redirect("/products");
-  }
-);
-
-// Eliminar JWT
-router.get("/logout", (req, res) => {
-  res.clearCookie(SIGNED_COOKIE_KEY).redirect("/jwt/login");
-});
-
-router.get("/error", (req, res) => {
-  res.render("errors/errorPage");
-});
-
-router.get("/current", passportCallCurrent("current"), (req, res) => {
-  if (!req.user) {
-    // Si no hay usuario autenticado, retornar un mensaje de error
-    return res.status(401).json({ status: "error", error: "No user with an active session" });
-  }
-  // Si hay un usuario autenticado, retornar los datos del usuario en el payload
-  res.status(200).json({ status: "success", payload: req.user });
-});
-
-export default router;
+}

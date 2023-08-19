@@ -16,9 +16,9 @@
     {{/if}}
 
     {{#if user}}
-    <a href="/jwt/logout" class="btn btn-secondary rounded-pill fw-bold ms-auto me-0">Logout</a>
+    <a href="/api/jwt/logout" class="btn btn-secondary rounded-pill fw-bold ms-auto me-3">Logout</a>
     {{else}}
-    <a href="/jwt/login" class="btn btn-secondary rounded-pill fw-bold ms-auto me-0">Login</a>
+    <a href="/api/jwt/login" class="btn btn-secondary rounded-pill fw-bold ms-auto me-3">Login</a>
     {{/if}}
   </div>
   </div>
@@ -79,7 +79,7 @@
   </div>
 
   <div class="row">
-    {{#each products.docs}}
+    {{#each products.payload}}
     <div class="col-md-12 col-lg-4 mb-3">
       <div class="card">
         <div class="d-flex justify-content-between p-3">

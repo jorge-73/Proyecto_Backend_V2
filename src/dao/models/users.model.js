@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
   age: { type: Number, required: false },
   password: { type: String, required: true },
   cart: { type: mongoose.Schema.Types.ObjectId, ref: "carts" },
-  role: { type: String, default: "User" },
+  role: { type: String, default: "user" },
 });
 
 mongoose.set("strictQuery", false);
