@@ -10,14 +10,14 @@ import appRouter from "./router.js";
 
 export default class ProductsRouter extends appRouter {
   init() {
-    this.get("/", [/* "USER", "ADMIN" */"PUBLIC"], getProductsController);
+    this.get("/", [ "USER", "ADMIN" ], getProductsController);
 
-    this.get("/:pid", [/* "USER", "ADMIN" */"PUBLIC"], getProductsByIdController);
+    this.get("/:pid", [ "USER", "ADMIN" ], getProductsByIdController);
 
-    this.post("/", [/* "ADMIN" */"PUBLIC"], uploader.single("file"), addProductsController);
+    this.post("/", [ "ADMIN" ], uploader.single("file"), addProductsController);
 
-    this.put("/:pid", [/* "ADMIN" */"PUBLIC"], updateProductsController);
+    this.put("/:pid", [ "ADMIN" ], updateProductsController);
 
-    this.delete("/:pid", [/* "ADMIN" */"PUBLIC"], deleteProductsController);
+    this.delete("/:pid", [ "ADMIN" ], deleteProductsController);
   }
 }
