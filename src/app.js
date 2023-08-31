@@ -3,7 +3,7 @@ import handlebars from "express-handlebars";
 import mongoose from "mongoose";
 import { Server } from "socket.io";
 import cookieParser from "cookie-parser";
-import { __dirname } from "./utils.js";
+import { __dirname, dateHelper } from "./utils.js";
 import {PORT, SECRET_PASS, MONGO_URI, MONGO_DB_NAME} from "./config/config.js";
 import run from "./run.js";
 import passport from "passport";
@@ -15,7 +15,9 @@ app.use(express.urlencoded({ extended: true }));
 // Configurar el middleware para servir archivos estáticos desde la carpeta "public"
 app.use(express.static(`${__dirname}/public`));
 // Configurar el motor de plantillas Handlebars
-app.engine("handlebars", handlebars.engine());
+app.engine("handlebars", handlebars.engine({
+  helpers: dateHelper
+}));
 app.set("views", `${__dirname}/views`);
 app.set("view engine", "handlebars");
 

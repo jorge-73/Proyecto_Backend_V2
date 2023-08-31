@@ -1,16 +1,27 @@
-import { getProductsByIdService, getProductsService } from "../services/products.service.js";
-import { getCartService } from "../services/carts.service.js";
-import { getChatService } from "../services/chats.service.js";
+import { ProductService, getProductsService } from "../services/products.service.js";
+import { CartService } from "../services/carts.service.js";
+import { ChatService } from "../services/chats.service.js";
 
 export const getProductsViewsController = async (req, res) => {
   try {
     const products = await getProductsService(req);
+
+    // Verificar el stock de cada producto y ajustar su status
+    for (const product of products.payload) {
+      product.stock === 0 ? product.status = false : product.status = true
+      // Actualizar status del producto en la base de datos
+      await ProductService.update(product._id, { status: product.status });
+    }
+
     const user = req.user.user;
     let userAdmin;
+    let onlyUser;
     if (user) {
       userAdmin = user?.role === "admin" ? true : false;
+      onlyUser = user?.role === "user" ? true : false;
     }
-    res.render("products", { products, user, userAdmin });
+    
+    res.render("products", { products, user, userAdmin, onlyUser });
   } catch (error) {
     console.log(error);
     return res.sendServerError(error);
@@ -30,7 +41,7 @@ export const getRealTimeProductsController = async (req, res) => {
 
 export const getChatController = async (req, res) => {
   try {
-    const messages = await getChatService();
+    const messages = await ChatService.getMessages();
     res.render("chat", { messages });
   } catch (error) {
     console.log(error);
@@ -40,14 +51,17 @@ export const getChatController = async (req, res) => {
 
 export const getProductsByIdViewController = async (req, res) => {
   try {
-    const product = await getProductsByIdService(req);
-    if (product.status === "error") return res.sendRequestError(product.message);
+    const pid = req.params.pid;
+    const product = await ProductService.getById(pid);
+    if (!product) return res.render("errors/errorPage", {error: "The product does not exist"});
     const user = req.user.user;
     let userAdmin;
+    let onlyUser;
     if (user) {
-      userAdmin = user?.role === "Admin" ? true : false;
+      userAdmin = user?.role === "admin" ? true : false;
+      onlyUser = user?.role === "user" ? true : false;
     }
-    res.render("product", { product, user, userAdmin });
+    res.render("product", { product, user, userAdmin, onlyUser });
   } catch (error) {
     console.log(error);
     return res.sendServerError(error);
@@ -56,7 +70,8 @@ export const getProductsByIdViewController = async (req, res) => {
 
 export const getCartViewController = async (req, res) => {
   try {
-    const cart = await getCartService(req);
+    const cid = req.params.cid;
+    const cart = await CartService.getCart(cid);
     if (cart.status === "error") return res.sendRequestError(cart.message);
     if (cart === null || cart.products.length === 0) {
       const emptyCart = "Cart Empty";

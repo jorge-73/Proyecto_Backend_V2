@@ -1,6 +1,4 @@
-import messageModel from "../dao/models/messages.model.js";
+import ChatDAO from "../dao/chats.mongo.dao.js";
+import ChatRepository from "../repositories/chat.repository.js";
 
-export const getChatService = async () => {
-  const messages = await messageModel.find().lean().exec();
-  return messages;
-};
+export const ChatService = new ChatRepository(new ChatDAO());

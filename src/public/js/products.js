@@ -86,26 +86,27 @@ const deleteProduct = async (id) => {
   }
 };
 
-const emptyCart = async () => {
+const purchaseProducts = async () => {
   const cartEmpty = window.location.pathname.match(
     /\/products\/carts\/(.+)/
   )[1];
   try {
-    const res = await fetch(`/api/carts/${cartEmpty}`, {
-      method: "DELETE",
-    });
-    const result = await res.json();
-    if (result.status === "error") throw new Error(result.error);
-    else socket.emit("cartList", result);
-
-    // Mostrar notificación de éxito
+    // Confirmación de la compra
     Swal.fire({
-      position: "top-end",
-      icon: "success",
-      title: "Thank you for your purchase",
-      showConfirmButton: false,
-      timer: 1500,
-    });
+      title: 'Confirm the purchase?',
+      text: "Products out of stock will not be added to the purchase!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, confirm!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setTimeout(() => {
+          window.location.href = `/api/carts/${cartEmpty}/purchase`;
+        }, 500)
+      }
+    })
   } catch (error) {
     console.log(error);
   }
@@ -116,7 +117,7 @@ const generateProductHTML = (prod) => {
   return `<div class="card rounded-3 mb-4" style="position: relative;">
          <button class="btn btn-danger px-2 py-1 rounded-3" 
          style="position: absolute; top:0; right:0"
-         onclick="deleteProduct('${prod.product._id.toString()}')"
+         onclick="deleteProduct('${prod.product._id}')"
          >X</button>
          <div class="card-body p-4">
            <div class="row d-flex justify-content-between align-items-center">
@@ -170,7 +171,7 @@ socket.on("updatedCarts", (data) => {
         ${productsHTML}
         <div class="card">
           <div class="card-body text-center">
-            <button type="button" class="btn btn-warning btn-block btn-lg" onclick="emptyCart()">Buy Now</button>
+            <button type="button" class="btn btn-warning btn-block btn-lg" onclick="purchaseProducts()">Buy Now</button>
           </div>
         </div>
   

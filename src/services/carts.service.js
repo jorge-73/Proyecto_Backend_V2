@@ -1,147 +1,105 @@
-import { productModel } from "../dao/models/products.model.js";
-import { cartModel } from "../dao/models/carts.model.js";
+import CartRepository from "../repositories/cart.repository.js";
+import { Cart } from "../dao/factory/carts.factory.js";
+import { ProductService } from "./products.service.js";
+import { generateUniqueCode } from "../utils.js";
+import { sendEmail } from "./nodemailer/mailer.js";
 
-export const addCartService = async (req) => {
-  const cart = req.body;
-  const addCart = await cartModel.create(cart);
-  return addCart;
+export const CartService = new CartRepository(new Cart());
+
+const calculateTotalAmount = async (cart) => {
+  let totalAmount = 0;
+
+  try {
+    for (const item of cart) {
+      const product = await ProductService.getById(item.product);
+      if (!product) {
+        throw new Error(`Product not found for id: ${item.product}`);
+      }
+        totalAmount += product.price * item.quantity;
+    }
+  } catch (error) {
+    console.log(error.message);
+  }
+
+  totalAmount = Number(totalAmount.toFixed(2));
+  return totalAmount;
 };
 
-export const addProductToCartService = async (req) => {
-  const pid = req.params.pid;
-  const product = await productModel.findById(pid);
-  if (!product) {
-    return { status: "error", message: "Invalid product" };
-  }
+export const purchaseService = async (req, res) => {
+  const userEmail = req.user.user.email;
   const cid = req.params.cid;
-  const cart = await cartModel.findById(cid);
-  if (!cart) {
-    return { status: "error", message: "Invalid cart" };
-  }
-  // Verificar si el producto ya existe en el carrito
-  const existingProduct = cart.products.findIndex((item) =>
-    item.product.equals(pid)
-  );
-  if (existingProduct !== -1) {
-    // Incrementar la cantidad del producto existente
-    cart.products[existingProduct].quantity += 1;
-  } else {
-    // Agregar el producto al carrito
-    const newProduct = {
-      product: pid,
-      quantity: 1,
-    };
-    cart.products.push(newProduct);
-  }
-  const result = await cart.save();
-  return result;
-};
-
-export const getCartService = async (req) => {
-  // Obtenemos el Id del carrito
-  const cartId = req.params.cid;
-  // Obtenemos el producto por ID
-  const cart = await cartModel.findById(cartId).lean().exec();
+  const cart = await CartService.getCart(cid);
   if (!cart)
-    return {
-      status: "error",
-      message: `The cart with id ${cartId} does not exist`,
+    return res.sendRequestError(`The cart with id ${cid} does not exist`);
+
+  const productsToPurchase = [];
+  const productsToRemove = [];
+
+  // Recorrer cada producto en el carrito
+  for (const productInfo of cart.products) {
+    const product = await ProductService.getById(productInfo.product._id);
+
+    if (!product) {
+      // Si el producto no existe, agrega su ID a la lista de productos a remover
+      productsToRemove.push(productInfo.product._id);
+      continue;
+    }
+
+    // Verificar si el stock después de la compra es 0 y cambiar el estado si es necesario
+    if (product.stock === 0) {
+      product.status = false;
+      await ProductService.update(product._id, product);
+    }
+
+    if (product.stock >= productInfo.quantity) {
+      // Si hay suficiente stock para la cantidad deseada, resta el stock del producto
+      product.stock -= productInfo.quantity;
+      await ProductService.update(product._id, product);
+      // Agrega el producto a la lista de productos a comprar
+      productsToPurchase.push(productInfo);
+    }
+  }
+  
+  if (productsToPurchase.length > 0) {
+    // Crea un nuevo ticket con los detalles de la compra
+    const newTicket = {
+      code: generateUniqueCode(),
+      purchase_datetime: new Date(),
+      amount: await calculateTotalAmount(productsToPurchase),
+      purchaser: userEmail,
+      products: productsToPurchase.map((prod) => ({
+        product: prod.product._id,
+        quantity: prod.quantity,
+      })),
     };
-  return cart;
+
+    const saveTicket = await CartService.createPurchase(newTicket);
+
+    // Filtra los productos que se pudieron comprar del carrito
+    cart.products = cart.products.filter(
+      (productInfo) =>
+        !productsToPurchase.some(
+          (prod) => prod.product._id === productInfo.product._id
+        )
+    );
+
+    // Asocia el ID del ticket con la compra en el carrito
+    cart.ticket = saveTicket._id;
+    await CartService.updatedCart({ _id: cid }, cart);
+
+    const ticket = await CartService.getPurchase(saveTicket._id);
+    const productsNotPurchased = await CartService.getCart(cid);
+    const existNotPurchased = productsNotPurchased.products.length !== 0 ? true : false
+    
+    await sendEmail(userEmail, ticket);
+
+    return res.render("ticket", { ticket, productsNotPurchased, existNotPurchased });
+    // return res.sendSuccess(saveTicket);
+  } else {
+    // Si no se pudo comprar ningún producto
+    return res.render("errors/errorPage", {
+      error: "No products were purchased.",
+    });
+  }
 };
 
-export const updateProductToCartService = async (req) => {
-  const cid = req.params.cid;
-  const cart = await cartModel.findById(cid);
-  if (!cart) {
-    return { status: "error", message: "Invalid cart" };
-  }
-  const pid = req.params.pid;
-  const existingProduct = cart.products.findIndex((item) =>
-    item.product.equals(pid)
-  );
-  if (existingProduct === -1) {
-    return { status: "error", message: "Invalid product" };
-  }
-  const quantity = req.body.quantity;
-  /* A verificar */
-  if (!Number.isInteger(quantity) || quantity < 0) {
-    return { status: "error", message: "Quantity must be a positive integer" };
-  }
-  // Actualizamos la cantidad del producto existente
-  cart.products[existingProduct].quantity = quantity;
-  // Guardamos el carrito actualizado
-  await cart.save();
-  return {
-    status: "success",
-    message: "Product quantity updated successfully",
-  };
-};
-
-export const updatedCartService = async (req) => {
-  const cid = req.params.cid;
-  const cart = await cartModel.findById(cid);
-  if (!cart) {
-    return { status: "error", message: "Invalid Cart" };
-  }
-  const products = req.body.products;
-  /* A verificar */
-  if (!Array.isArray(products)) {
-    return { status: "error", message: "The product array format is invalid" };
-  }
-  cart.products = products;
-  // Guardamos el carrito actualizado
-  const result = await cart.save();
-  const totalPages = 1;
-  const prevPage = null;
-  const nextPage = null;
-  const page = 1;
-  const hasPrevPage = false;
-  const hasNextPage = false;
-  const prevLink = null;
-  const nextLink = null;
-
-  return {
-    result,
-    totalPages,
-    prevPage,
-    nextPage,
-    page,
-    hasPrevPage,
-    hasNextPage,
-    prevLink,
-    nextLink,
-  };
-};
-
-export const deleteCartService = async (req) => {
-  const cid = req.params.cid;
-  const cart = await cartModel
-    .findByIdAndUpdate(cid, { products: [] }, { new: true })
-    .lean()
-    .exec();
-  if (!cart) {
-    return { status: "error", message: "Invalid cart" };
-  }
-  return cart;
-};
-
-export const deleteProductInCartService = async (req) => {
-  const cid = req.params.cid;
-  const cart = await cartModel.findById(cid);
-  if (!cart) {
-    return { status: "error", message: "Invalid cart" };
-  }
-  const pid = req.params.pid;
-  // Verificar si el producto ya existe en el carrito
-  const existingProduct = cart.products.findIndex((item) =>
-    item.product.equals(pid)
-  );
-  if (existingProduct === -1) {
-    return { status: "error", message: "Invalid product" };
-  }
-  // Eliminamos el producto del carrito
-  cart.products.splice(existingProduct, 1);
-  const result = await cart.save();
-  return result;
-};

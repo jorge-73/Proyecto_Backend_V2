@@ -6,7 +6,7 @@ const tbody = productsTable.querySelector("#tbody");
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  
+
   // Obtener los datos del formulario
   const formData = new FormData(form);
   const res = await fetch(form.action, {
@@ -17,7 +17,6 @@ form.addEventListener("submit", async (e) => {
     if (!res.ok) {
       throw new Error(result.error);
     } else {
-      console.log(res);
       // Obtener la lista actualizada de productos desde el servidor
       const resultProducts = await fetch("/api/products?limit=100");
       const results = await resultProducts.json();
@@ -25,7 +24,7 @@ form.addEventListener("submit", async (e) => {
         throw new Error(results.error);
       } else {
         // Emitir el evento "productList" con la lista de productos actualizada
-        socket.emit("productList", results.payload.payload);
+        socket.emit("productList", results.payload);
 
         // Mostrar notificación de éxito
         Toastify({
@@ -96,6 +95,14 @@ socket.on("updatedProducts", (products) => {
         <td>${item.stock}</td>
         <td>
           <button class="btn btn-danger" onclick="deleteProduct('${item._id}')" id="btnDelete">Delete</button>
+          <button class="btn btn-info" onclick="updatedProduct('${item._id}')" id="btnUpdate">Update</button>
+        </td>
+        <td id="editForm_${item._id}" style="display: none;">
+          <div class="product-edit-form">
+            <label for="editStock">New Stock:</label>
+            <input type="number" id="editStock_${item._id}" />
+            <button class="btn btn-info" onclick="updateStock('${item._id}')">Update Stock</button>
+          </div>
         </td>
       `;
     tbody.appendChild(row);

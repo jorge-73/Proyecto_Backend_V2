@@ -1,4 +1,8 @@
-import { productModel } from "../dao/models/products.model.js";
+// import ProductDAO from "../dao/products.mongo.dao.js";
+import { Product } from "../dao/factory/products.factory.js";
+import ProductRepository from "../repositories/product.repository.js";
+
+export const ProductService = new ProductRepository(new Product());
 
 export const getProductsService = async (req) => {
   const limit = parseInt(req.query.limit) || 10;
@@ -29,7 +33,7 @@ export const getProductsService = async (req) => {
     sort: sortOptions,
     lean: true,
   };
-  const result = await productModel.paginate(filter, options);
+  const result = await ProductService.getAllPaginate(filter, options);
   const totalPages = result.totalPages;
   const prevPage = result.prevPage;
   const nextPage = result.nextPage;
@@ -51,83 +55,4 @@ export const getProductsService = async (req) => {
     prevLink,
     nextLink,
   };
-};
-
-export const getProductsByIdService = async (req) => {
-  // Obtenemos el ID del producto de req.params
-  const pid = req.params.pid;
-  // Obtenemos el producto por ID
-  const product = await productModel.findById(pid).lean().exec();
-  // Enviamos un mensaje de error si no se encuentra el producto
-  if (product === null) {
-    return { status: "error", message: `The product does not exist` };
-  }
-  return product;
-};
-
-export const addProductsService = async (req) => {
-  if (!req.file) {
-    console.log("No image");
-  }
-  if (!req.body) {
-    return {
-      status: "error",
-      message: "Product no can be created without properties",
-    };
-  }
-  let product = {
-    title: req.body.title,
-    description: req.body.description,
-    price: parseFloat(req.body.price),
-    thumbnails: [req?.file?.originalname] || [],
-    code: req.body.code,
-    category: req.body.category,
-    stock: parseInt(req.body.stock),
-  };
-  const addProduct = await productModel.create(product);
-  const products = await productModel.find().lean().exec();
-  req.app.get("socketio").emit("updatedProducts", products);
-  return addProduct;
-};
-
-export const updateProductsService = async (req) => {
-  // Obtenemos el ID del producto de req.params
-  const pid = req.params.pid;
-  // Comprobamos si el ID del producto en el cuerpo de la solicitud es igual al ID en los parámetros de la ruta
-  if (req.body._id === pid) {
-    return { status: "error", message: "Cannot modify product id" };
-  }
-  const updated = req.body;
-  // Buscamos el producto por su ID en la lista de productos
-  const productFind = await productModel.findById(pid);
-  // Enviamos un mensaje de error si no se encuentra el producto
-  if (!productFind) {
-    return { status: "error", message: `The product does not exist` };
-  }
-  // Actualizamos el producto
-  await productModel.updateOne({ _id: pid }, updated);
-  const updatedProducts = await productModel.find();
-
-  req.app.get("socketio").emit("updatedProducts", updatedProducts);
-
-  const result = await productModel.findById(pid);
-
-  return result;
-};
-
-export const deleteProductsService = async (req) => {
-  // Obtenemos el ID del producto de req.params
-  const productId = req.params.pid;
-  const result = await productModel.findByIdAndDelete(productId);
-  if (result === null) {
-    return {
-      status: "error",
-      message: `No such product with id: ${productId}`,
-    };
-  }
-  // Obtener la lista actualizada de productos
-  const updatedProducts = await productModel.find().lean().exec();
-  // Emitir el evento "updatedProducts" con la lista de productos actualizada
-  req.app.get("socketio").emit("updatedProducts", updatedProducts);
-  return updatedProducts;
 };

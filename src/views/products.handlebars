@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
   <div class="container-fluid">
-    <a class="navbar-brand btn btn-secondary text-white rounded-pill fw-bold" href="/products/carts/{{user.cart}}" id="cart">Cart</a>
+    <a class="navbar-brand btn btn-secondary text-white rounded-pill fw-bold {{#if userAdmin}}disabled{{/if}}" href="/products/carts/{{user.cart}}" id="cart">Cart</a>
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -11,10 +11,14 @@
         <li class="nav-item">
           <a class="btn btn-warning rounded-pill mx-1 fw-bold" href="/api/jwt/current">Profile</a>
         </li>
+        {{#if onlyUser}}
+        <li class="nav-item">
+          <a class="btn btn-warning rounded-pill mx-1 fw-bold" href="/products/chat">Messages</a>
+        </li>
+        {{/if}}
         {{#if userAdmin}}
         <li class="nav-item">
-          <a class="btn btn-warning rounded-pill mx-1 fw-bold"
-            href="/products/realTimeProducts">RealTimeProducts</a>
+          <a class="btn btn-warning rounded-pill mx-1 fw-bold" href="/products/realTimeProducts">RealTimeProducts</a>
         </li>
         {{/if}}
       </ul>
@@ -84,6 +88,55 @@
   </div>
 
   <div class="row">
+    {{#if userAdmin}}
+    {{#each products.payload}}
+    <div class="col-md-12 col-lg-4 mb-3">
+      <div class="card">
+        <div class="d-flex justify-content-between p-3">
+          <button class="btn btn-outline-primary rounded-pill lead mb-0" onclick="addCart(`{{this._id}}`)" disabled>Add
+            To Cart</button>
+          <div class="bg-info rounded-circle d-flex align-items-center justify-content-center shadow-1-strong"
+            style="width: 35px; height: 35px;">
+            <a href="http://localhost:8080/products/product/{{this._id}}"
+              class="btn btn-info text-white mb-0 small rounded-circle">Info</a>
+          </div>
+        </div>
+        <div class="aspect-ratio-box">
+          <img src="/img/{{this.thumbnails.[0]}}" class="card-img-top img-fluid p-2 aspect-ratio-box-inside"
+            alt="{{this.title}}" />
+        </div>
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <p class="small"><a href="#!" class="text-muted">{{this.category}}</a></p>
+            <p class="small text-danger"><s>${{this.price}}</s></p>
+          </div>
+
+          <div class="d-flex justify-content-between mb-3">
+            <h5 class="mb-0">{{this.title}}</h5>
+            <h5 class="text-dark mb-0">${{this.price}}</h5>
+          </div>
+
+          <div class="d-flex justify-content-between mb-2">
+            {{#if this.status}}
+            <p class="text-muted mb-0">Available: <span class="fw-bold">{{this.stock}}</span></p>
+            {{else}}
+            <p class="text-danger fw-bold mb-0">Out of stock</p>
+            {{/if}}
+            <div class="ms-auto text-warning">
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {{/each}}
+    {{/if}}
+
+    {{#if onlyUser}}
     {{#each products.payload}}
     <div class="col-md-12 col-lg-4 mb-3">
       <div class="card">
@@ -112,7 +165,11 @@
           </div>
 
           <div class="d-flex justify-content-between mb-2">
+            {{#if this.status}}
             <p class="text-muted mb-0">Available: <span class="fw-bold">{{this.stock}}</span></p>
+            {{else}}
+            <p class="text-danger fw-bold mb-0">Out of stock</p>
+            {{/if}}
             <div class="ms-auto text-warning">
               <i class="fa fa-star"></i>
               <i class="fa fa-star"></i>
@@ -125,6 +182,7 @@
       </div>
     </div>
     {{/each}}
+    {{/if}}
   </div>
 </div>
 

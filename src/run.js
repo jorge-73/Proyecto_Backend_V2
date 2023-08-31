@@ -1,4 +1,4 @@
-import messageModel from "./dao/models/messages.model.js";
+import messageModel from "./models/messages.model.js";
 import ProductsRouter from "./routes/products.router.js";
 import CartsRouter from "./routes/carts.router.js";
 import ViewsProductsRouter from "./routes/views.router.js";
@@ -16,7 +16,7 @@ const run = (io, app) => {
   const productsRouter = new ProductsRouter();
   app.use("/api/products", productsRouter.getRouter());
   const cartsRouter = new CartsRouter();
-  app.use("/api/carts", cartsRouter.getRouter());
+  app.use("/api/carts", passportCall("jwt"), cartsRouter.getRouter());
   const jwtrouter = new JWTRouter();
   app.use("/api/jwt", jwtrouter.getRouter());
   // Ruta para las vistas de productos

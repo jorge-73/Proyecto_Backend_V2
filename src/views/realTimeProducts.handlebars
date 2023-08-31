@@ -73,11 +73,62 @@
         <td>{{this.stock}}</td>
         <td>
           <button class="btn btn-danger" onclick="deleteProduct(`{{this._id}}`)" id="btnDelete">Delete</button>
+          <button class="btn btn-info" onclick="updatedProduct(`{{this._id}}`)" id="btnUpdate">Update</button>
+        </td>
+        <td id="editForm_{{this._id}}" style="display: none;">
+          <div class="product-edit-form">
+            <label for="editStock">New Stock:</label>
+            <input type="number" id="editStock_{{this._id}}" />
+            <button class="btn btn-info" onclick="updateStock(`{{this._id}}`)">Update Stock</button>
+          </div>
         </td>
       </tr>
+
       {{/each}}
     </tbody>
   </table>
 </div>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/index.js"></script>
+<script>
+  // JavaScript para mostrar/ocultar el formulario de edición de stock
+  function updatedProduct(id) {
+    const editForm = document.getElementById(`editForm_${id}`);
+    console.log(editForm)
+    editForm.style.display = 'block'; // Mostrar el formulario
+  }
+  // Función para actualizar el stock del producto
+  const updateStock = async (id) => {
+    try {
+      const newStock = document.getElementById(`editStock_${id}`).value;
+      const res = await fetch(`/api/products/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ stock: newStock }),
+      });
+      const result = await res.json();
+      if (result.status === "error") throw new Error(result.error);
+      else socket.emit("productList", result.payload);
+
+      // Mostrar notificación de éxito
+      Toastify({
+        text: "product updated successfully",
+        duration: 2000,
+        newWindow: true,
+        close: true,
+        gravity: "bottom",
+        position: "right",
+        stopOnFocus: true,
+        style: {
+          background: "#add8e6",
+          color: "#000"
+        },
+        onClick: function () { },
+      }).showToast();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+</script>

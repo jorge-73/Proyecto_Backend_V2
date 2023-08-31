@@ -1,5 +1,6 @@
 import { generateToken } from "../utils.js";
 import { SIGNED_COOKIE_KEY } from "../config/config.js";
+import UserDTO from "../dto/users.dto.js";
 
 export const userRegisterController = async (req, res) => {
   res.redirect("/api/jwt/login");
@@ -54,6 +55,6 @@ export const errorPageController = (req, res) => {
 };
 
 export const userCurrentController = (req, res) => {
-  const user = req.user;
+  const user = new UserDTO(req.user);
   res.render("sessions/current", { user });
 };

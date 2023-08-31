@@ -2,8 +2,8 @@ import passport from "passport";
 import local from "passport-local";
 import GithubStrategy from "passport-github2";
 import jwt from "passport-jwt";
-import { userModel } from "../dao/models/users.model.js";
-import { cartModel } from "../dao/models/carts.model.js";
+import { userModel } from "../models/users.model.js";
+import { cartModel } from "../models/carts.model.js";
 import bcrypt from "bcrypt";
 import { isValidPassword, generateToken, createHash } from "../utils.js";
 import {
@@ -117,6 +117,9 @@ const initializePassport = () => {
             password: " ",
             cart: cartNewUser._id,
           };
+          if (newUser.email === ADMIN_EMAIL) {
+            newUser.role = "admin";
+          }
           const result = await userModel.create(newUser);
           // Generamos el token para el nuevo usuario
           const token = generateToken(result);

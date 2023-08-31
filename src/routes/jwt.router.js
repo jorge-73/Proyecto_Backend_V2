@@ -47,15 +47,7 @@ export default class JWTRouter extends appRouter {
     // Eliminar JWT
     this.get("/logout", ["PUBLIC"], userLogoutController);
     this.get("/error", ["PUBLIC"], errorPageController);
-
-    /* this.get("/current", passportCallCurrent("current"), (req, res) => {
-      if (!req.user) {
-        // Si no hay usuario autenticado, retornar un mensaje de error
-        return res.authFailError("No user with an active session");
-      }
-      // Si hay un usuario autenticado, retornar los datos del usuario en el payload
-      res.sendSuccess(req.user);
-    }); */
+    
     // Vista del Profile
     this.get("/current", ["PUBLIC"],
       passportCallCurrent("current"),

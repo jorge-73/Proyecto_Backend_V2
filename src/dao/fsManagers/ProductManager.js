@@ -86,7 +86,7 @@ class ProductManager {
     // Leer el contenido del archivo
     const products = await this.getProducts();
     // Buscar el producto con el id especificado
-    const product = products.find((prod) => prod.id === id);
+    const product = products.find((prod) => prod.id == id);
     // Devolver el producto o un mensaje en el case de que no se encontró
     return product /* || "El producto con ese id no existe" */;
   };
@@ -97,7 +97,7 @@ class ProductManager {
     const products = await this.getProducts();
 
     // Buscar el índice del producto con el id especificado
-    const index = products.findIndex((prod) => prod.id === id);
+    const index = products.findIndex((prod) => prod.id == id);
 
     // Si el producto existe, actualizarlo
     if (index !== -1) {
@@ -137,7 +137,7 @@ class ProductManager {
       // Leer el contenido del archivo
       const products = await this.getProducts();
       // Filtrar el array de productos, excluyendo el producto con el id especificado
-      const filterProducts = products.filter((prod) => prod.id !== id);
+      const filterProducts = products.filter((prod) => prod.id != id);
       // Si se eliminó algún producto, escribir el array de productos actualizado al archivo
       if (products.length !== filterProducts.length) {
         await fs.promises.writeFile(
