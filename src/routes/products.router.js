@@ -10,7 +10,7 @@ import appRouter from "./router.js";
 
 export default class ProductsRouter extends appRouter {
   init() {
-    this.get("/", ["USER", "ADMIN"], getProductsController);
+    this.get("/", [/* "USER", "ADMIN" */"PUBLIC"], getProductsController);
 
     this.get("/:pid", ["USER", "ADMIN"], getProductsByIdController);
 

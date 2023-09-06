@@ -1,10 +1,12 @@
 import messageModel from "./models/messages.model.js";
 import ProductsRouter from "./routes/products.router.js";
+import MockingProductsRouter from "./routes/mockingproducts.router.js";
 import CartsRouter from "./routes/carts.router.js";
 import ViewsProductsRouter from "./routes/views.router.js";
 import JWTRouter from "./routes/jwt.router.js";
 import appRouter from "./routes/router.js";
 import { passportCall } from "./utils.js";
+import errorMiddleware from "./middlewares/error.middleware.js";
 
 const run = (io, app) => {
   app.use((req, res, next) => {
@@ -22,6 +24,9 @@ const run = (io, app) => {
   // Ruta para las vistas de productos
   const viewsProductsRouter = new ViewsProductsRouter();
   app.use("/products", passportCall("jwt"), viewsProductsRouter.getRouter());
+  const mockingProducts = new MockingProductsRouter();
+  app.use("/mockingproducts", mockingProducts.getRouter());
+  app.use(errorMiddleware);
 
   // Evento de conexión de Socket.IO
   io.on("connection", async (socket) => {
@@ -50,7 +55,7 @@ const run = (io, app) => {
   // Ruta principal
   class router extends appRouter {
     init() {
-      this.get("/",["PUBLIC"], (req, res) => {
+      this.get("/", ["PUBLIC"], (req, res) => {
         res.render("index", { name: "CoderHouse" });
       });
     }

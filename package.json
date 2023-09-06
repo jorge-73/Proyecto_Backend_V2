@@ -1,5 +1,5 @@
 {
-  "name": "pre_entrega_3",
+  "name": "proyecto_backend_coderhouse",
   "version": "1.0.0",
   "description": "",
   "main": "src/app.js",
@@ -32,6 +32,7 @@
     "socket.io": "^4.7.1"
   },
   "devDependencies": {
+    "@faker-js/faker": "^8.0.2",
     "nodemon": "^2.0.22"
   }
 }
