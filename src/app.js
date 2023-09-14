@@ -3,7 +3,7 @@ import handlebars from "express-handlebars";
 import mongoose from "mongoose";
 import { Server } from "socket.io";
 import cookieParser from "cookie-parser";
-import { __dirname, dateHelper } from "./utils/utils.js";
+import { __dirname, dateHelper, srcDir } from "./utils/utils.js";
 import {PORT, SECRET_PASS, MONGO_URI, MONGO_DB_NAME} from "./config/config.js";
 import run from "./run.js";
 import passport from "passport";
@@ -30,6 +30,7 @@ try {
   await mongoose.connect(`${MONGO_URI}${MONGO_DB_NAME}`);
   // Iniciar el servidor HTTP
   const serverHttp = app.listen(PORT, () =>
+    console.log(__dirname),
     devLogger.http(`Server listening on port http://localhost:${PORT}`)
   );
   // Crear una instancia de Socket.IO y vincularla al servidor HTTP
