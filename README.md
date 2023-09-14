@@ -13,3 +13,4 @@
 - PERSISTENCE
 - NODEMAILER_USER
 - NODEMAILER_PASS
+- ENVIRONMENT Para producción o para desarrollo
