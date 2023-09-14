@@ -3,11 +3,12 @@ import handlebars from "express-handlebars";
 import mongoose from "mongoose";
 import { Server } from "socket.io";
 import cookieParser from "cookie-parser";
-import { __dirname, dateHelper } from "./utils.js";
+import { __dirname, dateHelper } from "./utils/utils.js";
 import {PORT, SECRET_PASS, MONGO_URI, MONGO_DB_NAME} from "./config/config.js";
 import run from "./run.js";
 import passport from "passport";
 import initializePassport from "./config/passport.config.js";
+import { devLogger } from "./utils/logger.js";
 
 const app = express();
 app.use(express.json());
@@ -29,7 +30,7 @@ try {
   await mongoose.connect(`${MONGO_URI}${MONGO_DB_NAME}`);
   // Iniciar el servidor HTTP
   const serverHttp = app.listen(PORT, () =>
-    console.log(`Server listening on port http://localhost:${PORT}`)
+    devLogger.http(`Server listening on port http://localhost:${PORT}`)
   );
   // Crear una instancia de Socket.IO y vincularla al servidor HTTP
   const io = new Server(serverHttp);
@@ -38,6 +39,6 @@ try {
 
   run(io, app);
 } catch (error) {
-  console.log(`Cannot connect to dataBase: ${error}`);
+  devLogger.error(`Cannot connect to dataBase: ${error}`);
   process.exit();
 }

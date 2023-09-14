@@ -1,4 +1,4 @@
-import { uploader } from "../utils.js";
+import { uploader } from "../utils/utils.js";
 import {
   addProductsController,
   deleteProductsController,

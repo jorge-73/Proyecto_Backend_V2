@@ -5,7 +5,7 @@ import jwt from "passport-jwt";
 import { userModel } from "../models/users.model.js";
 import { cartModel } from "../models/carts.model.js";
 import bcrypt from "bcrypt";
-import { isValidPassword, generateToken, createHash } from "../utils.js";
+import { isValidPassword, generateToken, createHash } from "../utils/utils.js";
 import {
   SIGNED_COOKIE_KEY,
   PRIVATE_KEY,
@@ -14,6 +14,7 @@ import {
   JWT_CLIENT_ID,
   JWT_CLIENT_SECRET,
 } from "./config.js";
+import { devLogger } from "../utils/logger.js";
 
 const LocalStrategy = local.Strategy;
 
@@ -60,7 +61,7 @@ const initializePassport = () => {
           const result = await userModel.create(newUser);
           return done(null, result);
         } catch (error) {
-          console.log(error);
+          devLogger.error(error);
           return done("Error creating user: " + error.message);
         }
       }
@@ -81,7 +82,7 @@ const initializePassport = () => {
           }
           return done(null, user);
         } catch (error) {
-          console.log(error);
+          devLogger.error(error);
           return done("Error getting user");
         }
       }
@@ -98,7 +99,7 @@ const initializePassport = () => {
       },
       async (accessTocken, refreshToken, profile, done) => {
         try {
-          // console.log(profile);
+          // devLogger.info(profile)
           const userName = profile.displayName || profile.username;
           const userEmail = profile._json.email;
 
@@ -126,7 +127,7 @@ const initializePassport = () => {
           // Enviamos el token como una cookie en la respuesta
           return done(null, result, { token });
         } catch (error) {
-          console.log(error);
+          devLogger.error(error);
           return done("Error getting user");
         }
       }
@@ -173,6 +174,7 @@ const initializePassport = () => {
           }
           return done(null, existingUser);
         } catch (error) {
+          devLogger.error(error);
           return done(error);
         }
       }

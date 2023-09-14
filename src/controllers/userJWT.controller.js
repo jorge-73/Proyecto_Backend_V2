@@ -1,8 +1,14 @@
-import { generateToken } from "../utils.js";
+import { generateToken } from "../utils/utils.js";
 import { SIGNED_COOKIE_KEY } from "../config/config.js";
 import UserDTO from "../dto/users.dto.js";
+import UserEmailDTO from "../dto/userEmail.dto.js";
+import { sendEmailRegister } from "../services/nodemailer/mailer.js";
 
 export const userRegisterController = async (req, res) => {
+  // Filtro solo los datos necesarios para enviar por mail
+  const userEmail = new UserEmailDTO(req.user);
+  // Creo el email de bienvenida con los datos devueltos por dto
+  await sendEmailRegister(userEmail);
   res.redirect("/api/jwt/login");
 };
 
@@ -40,6 +46,10 @@ export const viewLoginController = (req, res) => {
 export const loginGithubController = async (req, res) => {};
 
 export const githubCallbackController = async (req, res) => {
+  // Filtro solo los datos necesarios para enviar por mail
+  const userEmail = new UserEmailDTO(req.user);
+  // Creo el email de bienvenida con los datos devueltos por dto
+  await sendEmailRegister(userEmail);
   const access_token = req.authInfo.token;
   res
     .cookie(SIGNED_COOKIE_KEY, access_token, { signed: true })

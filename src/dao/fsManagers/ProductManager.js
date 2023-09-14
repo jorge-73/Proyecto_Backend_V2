@@ -1,5 +1,6 @@
 import fs from "fs";
 import { __dirname } from "../../utils.js";
+import { devLogger } from "../../utils/logger.js";
 
 class ProductManager {
   #path;
@@ -19,7 +20,7 @@ class ProductManager {
       (prod) => prod.code === product.code
     );
     if (existingProduct !== undefined) {
-      console.log("Ya existe un producto con el mismo código");
+      devLogger.error("Ya existe un producto con el mismo código");
       return false;
     }
 
@@ -33,7 +34,7 @@ class ProductManager {
         await fs.promises.readFile(this.#path, this.#format)
       );
     } catch (error) {
-      console.log("error: archivo no encontrado");
+      devLogger.error("error: archivo no encontrado");
       return [];
     }
   };
@@ -105,7 +106,7 @@ class ProductManager {
       // Validar el objeto de actualización
       const isValid = await this.#validateProduct(update);
       if (!isValid) {
-        return console.log(
+        return devLogger.error(
           "Error al actualizar: actualización inválida"
         );
       }
@@ -124,11 +125,11 @@ class ProductManager {
       this.products = products;
 
       // Devolver el producto actualizado
-      return console.log("Producto Actualizado", products[index]);
+      return devLogger.info("Producto Actualizado", products[index]);
     }
 
     // Si el producto no existe, devolvemos un mensaje
-    return console.log("Error al actualizar: Producto no encontrado");
+    return devLogger.error("Error al actualizar: Producto no encontrado");
   };
 
   // Eliminamos un producto en especifico buscando con su id
@@ -153,7 +154,7 @@ class ProductManager {
       // Si no se eliminó ningún producto, devolvemos un mensaje que no se encontro ese ID
       return "No existe el producto con ese ID";
     } catch (err) {
-      console.log(err);
+      devLogger.error(err);
     }
   };
 }

@@ -1,8 +1,9 @@
 import CartRepository from "../repositories/cart.repository.js";
 import { Cart } from "../dao/factory/carts.factory.js";
 import { ProductService } from "./products.service.js";
-import { generateUniqueCode } from "../utils.js";
-import { sendEmail } from "./nodemailer/mailer.js";
+import { generateUniqueCode } from "../utils/utils.js";
+import { sendEmailPurchase } from "./nodemailer/mailer.js";
+import { devLogger } from "../utils/logger.js";
 
 export const CartService = new CartRepository(new Cart());
 
@@ -18,7 +19,7 @@ const calculateTotalAmount = async (cart) => {
         totalAmount += product.price * item.quantity;
     }
   } catch (error) {
-    console.log(error.message);
+    devLogger.error(error.message);
   }
 
   totalAmount = Number(totalAmount.toFixed(2));
@@ -91,7 +92,7 @@ export const purchaseService = async (req, res) => {
     const productsNotPurchased = await CartService.getCart(cid);
     const existNotPurchased = productsNotPurchased.products.length !== 0 ? true : false
     
-    await sendEmail(userEmail, ticket);
+    await sendEmailPurchase(userEmail, ticket);
 
     return res.render("ticket", { ticket, productsNotPurchased, existNotPurchased });
     // return res.sendSuccess(saveTicket);

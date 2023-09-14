@@ -1,6 +1,7 @@
 import fs from "fs";
 import { __dirname } from "../../utils.js";
 import { productManager } from "./ProductManager.js";
+import { devLogger } from "../../utils/logger.js";
 
 class CartManager {
   #path;
@@ -16,7 +17,7 @@ class CartManager {
     try {
       return JSON.parse(await fs.promises.readFile(this.#path, this.#format));
     } catch (error) {
-      console.log("error: archivo no encontrado");
+      devLogger.error("error: archivo no encontrado");
       return [];
     }
   };

@@ -1,5 +1,6 @@
 import { CartService, purchaseService } from "../services/carts.service.js";
 import { ProductService } from "../services/products.service.js";
+import { devLogger } from "../utils/logger.js";
 
 
 export const addCartController = async (req, res) => {
@@ -7,7 +8,7 @@ export const addCartController = async (req, res) => {
     const result = await CartService.addCart(req);
     res.createdSuccess(result);
   } catch (error) {
-    console.log(error);
+    devLogger.error(error);
     return res.sendServerError(error.message);
   }
 };
@@ -42,7 +43,7 @@ export const addProductToCartController = async (req, res) => {
     const result = await CartService.updatedCart({ _id: cid }, cart);
     return res.sendSuccess(result);
   } catch (error) {
-    console.log(error);
+    devLogger.error(error);
     return res.sendServerError(error.message);
   }
 };
@@ -55,7 +56,7 @@ export const getCartController = async (req, res) => {
       return res.sendRequestError(`The cart with id ${cartId} does not exist`);
     return res.sendSuccess(result);
   } catch (error) {
-    console.log(error);
+    devLogger.error(error);
     return res.sendServerError(error.message);
   }
 };
@@ -80,7 +81,7 @@ export const updateProductToCartController = async (req, res) => {
     const result = await CartService.updatedCart({ _id: cid }, cart);
     return res.sendSuccess(result);
   } catch (error) {
-    console.log(error);
+    devLogger.error(error);
     return res.sendServerError(error.message);
   }
 };
@@ -100,7 +101,7 @@ export const updatedCartController = async (req, res) => {
 
     return res.sendSuccess(result);
   } catch (error) {
-    console.log(error);
+    devLogger.error(error);
     return res.sendServerError(error.message);
   }
 };
@@ -114,7 +115,7 @@ export const deleteCartController = async (req, res) => {
     }
     res.sendSuccess(result);
   } catch (error) {
-    console.log(error);
+    devLogger.error(error);
     return res.sendServerError(error.message);
   }
 };
@@ -136,7 +137,7 @@ export const deleteProductInCartController = async (req, res) => {
     const result = await CartService.getCart(cid);
     res.sendSuccess(result);
   } catch (error) {
-    console.log(error);
+    devLogger.error(error);
     return res.sendServerError(error.message);
   }
 };
@@ -146,7 +147,7 @@ export const getPurchaseController = async (req, res) => {
     const result = await purchaseService(req, res);
     return result;
   } catch (error) {
-    console.log(error);
+    devLogger.error(error);
     return res.sendServerError(error.message);
   }
 };

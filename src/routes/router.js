@@ -2,6 +2,7 @@ import { Router } from "express";
 import jwt from "jsonwebtoken";
 import { PRIVATE_KEY, SIGNED_COOKIE_KEY } from "../config/config.js";
 import { cookieExtractor } from "../config/passport.config.js";
+import { devLogger } from "../utils/logger.js";
 
 export default class appRouter {
   constructor() {
@@ -56,7 +57,7 @@ export default class appRouter {
         // callback, sabemos que los params de un callback corresponden a req,res,next
         await callback.apply(this, params);
       } catch (error) {
-        console.log(error);
+        devLogger.error(error);
         // params[1] hace referencia a res, por ello puedo mandar un sende desde este
         params[1].status(500).json({ error });
       }
