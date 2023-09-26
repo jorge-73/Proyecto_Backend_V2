@@ -1,5 +1,4 @@
-// import ProductDAO from "../dao/products.mongo.dao.js";
-import { Product } from "../dao/factory/products.factory.js";
+import { Product } from "../dao/factory/factory.js";
 import ProductRepository from "../repositories/product.repository.js";
 
 export const ProductService = new ProductRepository(new Product());

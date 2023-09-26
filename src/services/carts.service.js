@@ -1,5 +1,5 @@
 import CartRepository from "../repositories/cart.repository.js";
-import { Cart } from "../dao/factory/carts.factory.js";
+import { Cart } from "../dao/factory/factory.js";
 import { ProductService } from "./products.service.js";
 import { generateUniqueCode } from "../utils/utils.js";
 import { sendEmailPurchase } from "./nodemailer/mailer.js";

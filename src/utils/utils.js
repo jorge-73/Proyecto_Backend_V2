@@ -34,6 +34,11 @@ export const generateToken = (user) => {
   return token;
 };
 
+export const linkToken = (data) => {
+  const token = jwt.sign({ data }, PRIVATE_KEY, { expiresIn: "1h" });
+  return token;
+};
+
 export const passportCall = (strategy) => {
   return async (req, res, next) => {
     passport.authenticate(

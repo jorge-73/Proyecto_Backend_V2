@@ -2,8 +2,8 @@ import passport from "passport";
 import local from "passport-local";
 import GithubStrategy from "passport-github2";
 import jwt from "passport-jwt";
-import { userModel } from "../models/users.model.js";
-import { cartModel } from "../models/carts.model.js";
+import { UserService } from "../services/users.service.js";
+import { CartService } from "../services/carts.service.js";
 import bcrypt from "bcrypt";
 import { isValidPassword, generateToken, createHash } from "../utils/utils.js";
 import {
@@ -14,6 +14,8 @@ import {
   JWT_CLIENT_ID,
   JWT_CLIENT_SECRET,
 } from "./config.js";
+import UserEmailDTO from "../dto/userEmail.dto.js";
+import { sendEmailRegister } from "../services/nodemailer/mailer.js";
 import { devLogger } from "../utils/logger.js";
 
 const LocalStrategy = local.Strategy;
@@ -39,11 +41,11 @@ const initializePassport = () => {
       async (req, username, password, done) => {
         const { first_name, last_name, email, age } = req.body;
         try {
-          const user = await userModel.findOne({ email: username });
+          const user = await UserService.findOne({ email: username });
           if (user) {
             return done(null, false);
           }
-          const cartNewUser = await cartModel.create({});
+          const cartNewUser = await CartService.create({});
           const newUser = {
             first_name,
             last_name,
@@ -58,7 +60,7 @@ const initializePassport = () => {
           ) {
             newUser.role = "admin";
           }
-          const result = await userModel.create(newUser);
+          const result = await UserService.create(newUser);
           return done(null, result);
         } catch (error) {
           devLogger.error(error);
@@ -76,7 +78,7 @@ const initializePassport = () => {
       },
       async (username, password, done) => {
         try {
-          const user = await userModel.findOne({ email: username });
+          const user = await UserService.findOne({ email: username });
           if (!user || !isValidPassword(user, password)) {
             return done(null, false);
           }
@@ -103,14 +105,14 @@ const initializePassport = () => {
           const userName = profile.displayName || profile.username;
           const userEmail = profile._json.email;
 
-          const existingUser = await userModel.findOne({ email: userEmail });
+          const existingUser = await UserService.findOne({ email: userEmail });
           if (existingUser) {
             // Si el usuario ya existe en la base de datos, generamos el token
             const token = generateToken(existingUser);
             // Enviamos el token como una cookie en la respuesta
             return done(null, existingUser, { token });
           }
-          const cartNewUser = await cartModel.create({});
+          const cartNewUser = await CartService.create({});
           const newUser = {
             first_name: userName,
             last_name: " ",
@@ -121,7 +123,12 @@ const initializePassport = () => {
           if (newUser.email === ADMIN_EMAIL) {
             newUser.role = "admin";
           }
-          const result = await userModel.create(newUser);
+          const result = await UserService.create(newUser);
+          console.log(result);
+          // Filtro solo los datos necesarios para enviar por mail
+          const userSendEmail = new UserEmailDTO(result);
+          // Creo el email de bienvenida con los datos devueltos por dto
+          await sendEmailRegister(userSendEmail);
           // Generamos el token para el nuevo usuario
           const token = generateToken(result);
           // Enviamos el token como una cookie en la respuesta
@@ -165,7 +172,7 @@ const initializePassport = () => {
             // Si no se proporcionó un token, retornar un mensaje de error
             return done(null, false, { message: "No token provided" });
           }
-          const existingUser = await userModel.findById(user._id).lean().exec();
+          const existingUser = await UserService.findById(user._id);
           if (!existingUser) {
             // Si el usuario asociado al token no existe en la base de datos, retornar un mensaje de error
             return done(null, false, {
@@ -187,7 +194,7 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser(async (id, done) => {
-  const user = await userModel.findById(id);
+  const user = await UserService.findById(id);
   done(null, user);
 });
 

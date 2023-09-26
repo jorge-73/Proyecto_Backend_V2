@@ -34,8 +34,7 @@ export const sendEmailPurchase = async (userEmail, ticket) => {
       name: ticket.purchaser,
       intro: "Your order has been processed successfully",
       dictionary: {
-        date: moment(ticket.purchase_datetime).format(
-          "DD/MM/YYYY HH:mm:ss"),
+        date: moment(ticket.purchase_datetime).format("DD/MM/YYYY HH:mm:ss"),
       },
       table: {
         data: productsData,
@@ -117,4 +116,58 @@ export const sendEmailRegister = async (userEmail) => {
     devLogger.error(error);
     throw error;
   }
-}
+};
+
+export const emailResetPassword = async (userEmail, tokenLink) => {
+  let config = {
+    service: "gmail",
+    auth: {
+      user: NODEMAILER_USER,
+      pass: NODEMAILER_PASS,
+    },
+  };
+  let transporter = nodemailer.createTransport(config);
+
+  let Mailgenerator = new Mailgen({
+    theme: "default",
+    product: {
+      name: "Ecommerce",
+      link: "http://localhost:8080",
+    },
+  });
+
+  let content = {
+    body: {
+      name: `${userEmail.full_name}`,
+      intro:
+        "You have received this email because a password reset request for your account was received.",
+      action: {
+        instructions: "Click the button below to reset your password:",
+        button: {
+          color: "#DC4D2F",
+          text: "Reset your password",
+          link: `http://localhost:8080/api/jwt/passwordReset/${tokenLink}`,
+        },
+      },
+      outro:
+        "If you did not request a password reset, no further action is required on your part.",
+      signature: false,
+    },
+  };
+
+  let mail = Mailgenerator.generate(content);
+
+  let message = {
+    from: NODEMAILER_USER,
+    to: userEmail.email,
+    subject: "Password recovery email",
+    html: mail,
+  };
+  try {
+    const email = await transporter.sendMail(message);
+    return email;
+  } catch (error) {
+    devLogger.error(error);
+    throw error;
+  }
+};
