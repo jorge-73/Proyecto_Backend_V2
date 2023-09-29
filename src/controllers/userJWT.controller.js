@@ -74,7 +74,9 @@ export const errorResetPassController = (req, res) => {
 
 export const userCurrentController = (req, res) => {
   const user = new UserDTO(req.user);
-  res.render("sessions/current", { user });
+  const isUser = user.role === "user" ? true : false;
+  const isPremium = user.role === "premium" ? true : false;
+  res.render("sessions/current", { user, isUser, isPremium });
 };
 
 export const passwordResetController = (req, res) => {
@@ -127,7 +129,7 @@ export const sendNewPasswordController = async (req, res) => {
       });
     }
     const userEmail = jwt.verify(tid, PRIVATE_KEY);
-    
+
     const { password } = req.body;
     const userFound = await UserService.findOne({
       email: userEmail.data.email,

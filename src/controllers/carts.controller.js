@@ -2,7 +2,6 @@ import { CartService, purchaseService } from "../services/carts.service.js";
 import { ProductService } from "../services/products.service.js";
 import { devLogger } from "../utils/logger.js";
 
-
 export const addCartController = async (req, res) => {
   try {
     const result = await CartService.addCart(req);
@@ -25,6 +24,14 @@ export const addProductToCartController = async (req, res) => {
     if (!cart) {
       return res.sendRequestError("Invalid cart");
     }
+
+    // Verificar si el usuario es premium
+    const currentUser = req.user.user;
+    if (currentUser.role === "premium" && product.owner === currentUser._id)
+      return res.sendUserError(
+        "Premium users cannot add their own products to the cart."
+      );
+
     // Verificar si el producto ya existe en el carrito
     const existingProduct = cart.products.findIndex(
       (item) => item.product._id == pid

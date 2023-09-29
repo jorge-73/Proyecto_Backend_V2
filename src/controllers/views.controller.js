@@ -13,16 +13,18 @@ export const getProductsViewsController = async (req, res) => {
       // Actualizar status del producto en la base de datos
       await ProductService.update(product._id, { status: product.status });
     }
-
+    // Variables para mostrar u ocultar botones de acciones en la vista
     const user = req.user.user;
     let userAdmin;
     let onlyUser;
+    let userPremium;
     if (user) {
       userAdmin = user?.role === "admin" ? true : false;
-      onlyUser = user?.role === "user" ? true : false;
+      onlyUser = (user?.role === "user" || user?.role === "premium") ? true : false;
+      userPremium = user?.role === "premium" ? true : false;
     }
     
-    res.render("products", { products, user, userAdmin, onlyUser });
+    res.render("products", { products, user, userAdmin, onlyUser, userPremium });
   } catch (error) {
     devLogger.error(error);
     return res.sendServerError(error);
@@ -58,11 +60,13 @@ export const getProductsByIdViewController = async (req, res) => {
     const user = req.user.user;
     let userAdmin;
     let onlyUser;
+    let userPremium;
     if (user) {
       userAdmin = user?.role === "admin" ? true : false;
-      onlyUser = user?.role === "user" ? true : false;
+      onlyUser = (user?.role === "user" || user?.role === "premium") ? true : false;
+      userPremium = user?.role === "premium" ? true : false;
     }
-    res.render("product", { product, user, userAdmin, onlyUser });
+    res.render("product", { product, user, userAdmin, onlyUser, userPremium });
   } catch (error) {
     devLogger.error(error);
     return res.sendServerError(error.message);

@@ -14,7 +14,7 @@ export default class appRouter {
   }
   init() {} // Esta inicializacion sera para sus clases heredadas
 
-  get(path,policies, ...callbacks) {
+  get(path, policies, ...callbacks) {
     this.router.get(
       path,
       this.handlePolicies(policies),
@@ -22,7 +22,7 @@ export default class appRouter {
       this.applyCallbacks(callbacks)
     );
   }
-  post(path,policies, ...callbacks) {
+  post(path, policies, ...callbacks) {
     this.router.post(
       path,
       this.handlePolicies(policies),
@@ -30,7 +30,7 @@ export default class appRouter {
       this.applyCallbacks(callbacks)
     );
   }
-  put(path,policies, ...callbacks) {
+  put(path, policies, ...callbacks) {
     this.router.put(
       path,
       this.handlePolicies(policies),
@@ -38,7 +38,7 @@ export default class appRouter {
       this.applyCallbacks(callbacks)
     );
   }
-  delete(path,policies, ...callbacks) {
+  delete(path, policies, ...callbacks) {
     this.router.delete(
       path,
       this.handlePolicies(policies),
@@ -68,25 +68,27 @@ export default class appRouter {
     // sendSuccess permitira que el desarrollador solo tenga que enviar el
     // payload, el formato se gestionara de manera interna
     res.sendSuccess = (payload) => res.json({ status: "success", payload });
-    res.createdSuccess = (payload) => res.status(201).json({ status: "success", payload });
+    res.createdSuccess = (payload) =>
+      res.status(201).json({ status: "success", payload });
     res.sendServerError = (error) =>
       res.status(500).json({ status: "error", error });
     res.sendUserError = (error) =>
       res.status(400).json({ status: "error", error });
-      res.authFailError = (error) =>
+    res.authFailError = (error) =>
       res.status(401).json({ status: "error", error });
     res.sendRequestError = (error) =>
       res.status(404).json({ status: "error", error });
     next();
   };
 
-  handlePolicies = policies => (req, res, next) => {
-    if(policies[0]==="PUBLIC") return next();//Cualquiera puede entrar
+  handlePolicies = (policies) => (req, res, next) => {
+    if (policies[0] === "PUBLIC") return next(); //Cualquiera puede entrar
     const authHeaders = req.signedCookies[SIGNED_COOKIE_KEY];
-    if(!authHeaders) return res.status(401).render("errors/errorPage", {
-      status: "error",
-      error: "Unauthorized",
-    });
+    if (!authHeaders)
+      return res.status(401).render("errors/errorPage", {
+        status: "error",
+        error: "Unauthorized",
+      });
     // json({status:"error",error:"Unauthorized"});
     const token = cookieExtractor(req);
     // Obtenemos el usuario a partir del token;
@@ -97,7 +99,7 @@ export default class appRouter {
       error: "No authorized",
     });
     // json({status:"error", error:"No authorized"});
-    req.user=user;
+    req.user = user;
     next();
-  }
+  };
 }

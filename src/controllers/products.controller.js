@@ -41,12 +41,18 @@ export const addProductsController = async (req, res) => {
       stock: parseInt(req.body.stock),
     };
 
+    // Establece el propietario del producto como "admin" si no se proporciona un usuario
+    product.owner =
+      req.user.user && req.user.user.role === "premium"
+        ? req.user.user._id
+        : "admin";
+
     const result = await ProductService.create(product);
     const products = await ProductService.getAll();
     req.app.get("socketio").emit("updatedProducts", products);
     res.createdSuccess(result);
   } catch (error) {
-    devLogger.error(error);
+    devLogger.error(error.message);
     return res.sendServerError(error.message);
   }
 };
@@ -54,10 +60,22 @@ export const addProductsController = async (req, res) => {
 export const updateProductsController = async (req, res) => {
   try {
     const pid = req.params.pid;
-    if (req.body._id === pid) return sendUserError("Cannot modify product id");
     const updated = req.body;
     const productFind = await ProductService.getById(pid);
     if (!productFind) return sendRequestError("The product does not exist");
+
+    // Verificar si el usuario no es un administrador y el producto no le pertenece
+    if (
+      req.user.user.role !== "admin" &&
+      productFind?.owner !== req.user.user._id
+    )
+      return res.sendUserError(
+        "You are not authorized to update this product."
+      );
+
+    if (updated._id === pid)
+      return res.sendUserError("Cannot modify product id");
+
     await ProductService.update(pid, updated);
 
     const products = await ProductService.getAll();
@@ -73,8 +91,28 @@ export const updateProductsController = async (req, res) => {
 export const deleteProductsController = async (req, res) => {
   try {
     const pid = req.params.pid;
+    const product = await ProductService.getById(pid);
+
+    // Verificar si el producto no existe
+    if (!product) {
+      return res.sendRequestError(`No such product with id: ${pid}`);
+    }
+
+    // Verificar si el usuario no es un administrador y el producto no le pertenece
+    if (
+      req.user.user.role !== "admin" &&
+      product?.owner !== req.user.user._id
+    ) {
+      return res.sendUserError(
+        "You are not authorized to delete this product."
+      );
+    }
+
+    // Si llegamos hasta aquí, el usuario es un administrador o el producto le pertenece
     const result = await ProductService.delete(pid);
-    if (!result) return res.sendRequestError(`No such product with id: ${pid}`);
+    if (!result) {
+      return res.sendRequestError(`No such product with id: ${pid}`);
+    }
 
     const products = await ProductService.getAll();
     req.app.get("socketio").emit("updatedProducts", products);

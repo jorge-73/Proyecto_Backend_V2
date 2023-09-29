@@ -94,7 +94,6 @@
   // JavaScript para mostrar/ocultar el formulario de edición de stock
   function updatedProduct(id) {
     const editForm = document.getElementById(`editForm_${id}`);
-    console.log(editForm)
     editForm.style.display = 'block'; // Mostrar el formulario
   }
   // Función para actualizar el stock del producto
@@ -128,7 +127,19 @@
         onClick: function () { },
       }).showToast();
     } catch (error) {
-      console.log(error);
+      Toastify({
+        text: `${error}`,
+        duration: 2000,
+        newWindow: true,
+        close: true,
+        gravity: "bottom",
+        position: "center",
+        stopOnFocus: true,
+        style: {
+          background: "#ff0000",
+        },
+        onClick: function () { },
+      }).showToast();
     }
   };
 </script>

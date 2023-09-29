@@ -8,6 +8,7 @@ import LoggerTestRouter from "./routes/loggerTest.router.js";
 import appRouter from "./routes/router.js";
 import { passportCall } from "./utils/utils.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
+import UsersRouter from "./routes/users.router.js";
 
 const run = (io, app) => {
   app.use((req, res, next) => {
@@ -22,6 +23,8 @@ const run = (io, app) => {
   app.use("/api/carts", passportCall("jwt"), cartsRouter.getRouter());
   const jwtrouter = new JWTRouter();
   app.use("/api/jwt", jwtrouter.getRouter());
+  const usersRouter = new UsersRouter();
+  app.use("/api/users", passportCall("jwt"), usersRouter.getRouter());
   // Ruta para las vistas de productos
   const viewsProductsRouter = new ViewsProductsRouter();
   app.use("/products", passportCall("jwt"), viewsProductsRouter.getRouter());

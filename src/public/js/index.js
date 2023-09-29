@@ -4,6 +4,22 @@ const form = document.getElementById("form");
 const productsTable = document.querySelector("#productsTable");
 const tbody = productsTable.querySelector("#tbody");
 
+const message = (message, gravity, position, color) => {
+  return Toastify({
+    text: `${message}`,
+    duration: 3000,
+    newWindow: true,
+    close: true,
+    gravity: `${gravity}`,
+    position: `${position}`,
+    stopOnFocus: true,
+    style: {
+      background: `${color}`,
+    },
+    onClick: function () {},
+  }).showToast();
+};
+
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -15,7 +31,7 @@ form.addEventListener("submit", async (e) => {
   });
   try {
     if (!res.ok) {
-      throw new Error(result.error);
+      throw new Error(res.error);
     } else {
       // Obtener la lista actualizada de productos desde el servidor
       const resultProducts = await fetch("/api/products?limit=100");
@@ -27,25 +43,13 @@ form.addEventListener("submit", async (e) => {
         socket.emit("productList", results.payload);
 
         // Mostrar notificación de éxito
-        Toastify({
-          text: "new product added successfully",
-          duration: 2000,
-          newWindow: true,
-          close: true,
-          gravity: "top",
-          position: "right",
-          stopOnFocus: true,
-          style: {
-            background: "#008000",
-          },
-          onClick: function () {},
-        }).showToast();
+        message("new product added successfully", "top", "right", "#008000");
         // Restablecer los campos del formulario
         form.reset();
       }
     }
   } catch (error) {
-    console.log(error);
+    message(`${error}`, "bottom", "center", "#ff0000");
   }
 });
 
@@ -60,21 +64,10 @@ const deleteProduct = async (id) => {
     else socket.emit("productList", result.payload);
 
     // Mostrar notificación de éxito
-    Toastify({
-      text: "product removed successfully",
-      duration: 2000,
-      newWindow: true,
-      close: true,
-      gravity: "bottom",
-      position: "right",
-      stopOnFocus: true,
-      style: {
-        background: "#ff0000",
-      },
-      onClick: function () {},
-    }).showToast();
+    message("product removed successfully", "bottom", "right", "#ff0000");
+    
   } catch (error) {
-    console.log(error);
+    message(`${error}`, "bottom", "center", "#ff0000");
   }
 };
 

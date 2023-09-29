@@ -3,6 +3,23 @@ const socket = io();
 const cartLink = document?.getElementById("cart");
 const hrefValue = cartLink?.getAttribute("href");
 const cart = hrefValue?.match(/\/products\/carts\/(.+)/)[1];
+
+const message = (message, gravity, position, color) => {
+  return Toastify({
+    text: `${message}`,
+    duration: 3000,
+    newWindow: true,
+    close: true,
+    gravity: `${gravity}`,
+    position: `${position}`,
+    stopOnFocus: true,
+    style: {
+      background: `${color}`,
+    },
+    onClick: function () {},
+  }).showToast();
+};
+
 const addCart = async (id) => {
   try {
     const res = await fetch(`/api/carts/${cart}/product/${id}`, {
@@ -12,21 +29,9 @@ const addCart = async (id) => {
     if (result.status === "error") throw new Error(result.error);
 
     // Mostrar notificación de éxito
-    Toastify({
-      text: "product add to cart successfully",
-      duration: 2000,
-      newWindow: true,
-      close: true,
-      gravity: "top",
-      position: "right",
-      stopOnFocus: true,
-      style: {
-        background: "#008000",
-      },
-      onClick: function () {},
-    }).showToast();
+    message("product add to cart successfully", "top", "right", "#008000");
   } catch (error) {
-    console.log(error);
+    message(`${error}`, "bottom", "center", "#ff0000");
   }
 };
 
@@ -39,21 +44,9 @@ const addProductToCart = async (id, prodCart) => {
     if (result.status === "error") throw new Error(result.error);
 
     // Mostrar notificación de éxito
-    Toastify({
-      text: "product add to cart successfully",
-      duration: 2000,
-      newWindow: true,
-      close: true,
-      gravity: "top",
-      position: "right",
-      stopOnFocus: true,
-      style: {
-        background: "#008000",
-      },
-      onClick: function () {},
-    }).showToast();
+    message("product add to cart successfully", "top", "right", "#008000");
   } catch (error) {
-    console.log(error);
+    message(`${error}`, "bottom", "center", "#ff0000");
   }
 };
 
@@ -68,21 +61,10 @@ const deleteProduct = async (id) => {
     else socket.emit("cartList", result);
 
     // Mostrar notificación de éxito
-    Toastify({
-      text: "product delete to cart successfully",
-      duration: 2000,
-      newWindow: true,
-      close: true,
-      gravity: "top",
-      position: "right",
-      stopOnFocus: true,
-      style: {
-        background: "#ff0000",
-      },
-      onClick: function () {},
-    }).showToast();
+    message("product delete to cart successfully", "top", "right", "#ff0000");
+
   } catch (error) {
-    console.log(error);
+    message(`${error}`, "bottom", "center", "#ff0000");
   }
 };
 
@@ -93,22 +75,22 @@ const purchaseProducts = async () => {
   try {
     // Confirmación de la compra
     Swal.fire({
-      title: 'Confirm the purchase?',
+      title: "Confirm the purchase?",
       text: "Products out of stock will not be added to the purchase!",
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, confirm!'
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, confirm!",
     }).then((result) => {
       if (result.isConfirmed) {
         setTimeout(() => {
           window.location.href = `/api/carts/${cartEmpty}/purchase`;
-        }, 500)
+        }, 500);
       }
-    })
+    });
   } catch (error) {
-    console.log(error);
+    message(`${error}`, "bottom", "center", "#ff0000");
   }
 };
 
@@ -144,14 +126,13 @@ const generateProductHTML = (prod) => {
            </div>
          </div>
        </div>`;
-}
+};
 
 // Escucha el evento "updatedCarts" emitido por el servidor
 socket.on("updatedCarts", (data) => {
-
   const productsHTML = data.payload.products
-      .map((prod) => generateProductHTML(prod))
-      .join("");
+    .map((prod) => generateProductHTML(prod))
+    .join("");
 
   if (data.payload.products.length > 0) {
     cartBody.innerHTML = `
