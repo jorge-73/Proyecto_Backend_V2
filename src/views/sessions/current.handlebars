@@ -56,9 +56,14 @@
 
       if (res.ok) {
         message("User role updated successfully", "#008000");
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
+        const logoutResponse = await fetch('/api/jwt/logout');
+        if (logoutResponse.ok) {
+          setTimeout(async () => {
+            window.location.href = "/api/jwt/login";
+          }, 2000);
+        } else {
+          message("Logout failed.", "#ff0000");
+        }
       } else {
         message("Error updating user role", "#ff0000");
       }
