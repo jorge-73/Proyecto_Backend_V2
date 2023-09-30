@@ -25,6 +25,7 @@ const swaggerOptions = {
     openapi: "3.1.0",
     info: {
       title: "Ecommerce Proyecto Final de Coderhouse",
+      description: "API to manage products and shopping carts",
       version: "1.0.0",
     },
   },
