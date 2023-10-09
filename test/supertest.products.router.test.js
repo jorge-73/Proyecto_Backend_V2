@@ -43,6 +43,8 @@ describe("Testing E-Commerce - Rutas de productos", () => {
       .get("/api/products")
       .set("Cookie", [`${cookie.name}=${cookie.value}`]);
     expect(response.status).to.equal(200);
+    expect(response.body.payload).to.be.an('array');
+    expect(response.body.payload).to.have.lengthOf.above(0);
   });
 
   it("El Endpoint GET /api/products/:id debe devolver un producto por su ID", async () => {
