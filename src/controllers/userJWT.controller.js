@@ -16,7 +16,7 @@ export const userRegisterController = async (req, res) => {
   // Filtro solo los datos necesarios para enviar por mail
   const userEmail = new UserEmailDTO(req.user);
   // Creo el email de bienvenida con los datos devueltos por dto
-  await sendEmailRegister(userEmail);
+//  await sendEmailRegister(userEmail);
   res.redirect("/api/jwt/login");
 };
 
