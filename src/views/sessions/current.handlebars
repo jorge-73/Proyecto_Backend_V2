@@ -1,6 +1,9 @@
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
   <div class="container-fluid px-4">
-    <a class="navbar-brand btn btn-secondary rounded-pill fw-bold text-white" href="/products">Products</a>
+    <a
+      class="navbar-brand btn btn-secondary rounded-pill fw-bold text-white"
+      href="/products"
+    >Products</a>
   </div>
 </nav>
 <div class="container min-vh-100">
@@ -9,23 +12,65 @@
       <h1 class="text-center p-3 fw-bold">User Profile</h1>
       <div class="card shadow">
         <div class="px-4 py-2">
-          <h2 class="text-center">{{user.full_name}}</h2>
-          <hr>
+          <span class="h2 text-center me-3">{{user.full_name}}</span>
+          {{#if user.profilePicture}}
+            <img
+              src="/img/profiles/{{user.profilePicture}}"
+              alt="{{user.first_name}}_{{user.last_name}}"
+              class="user-profile-img"
+            />
+          {{/if}}
+          <hr />
         </div>
         <div class="card-body px-4">
           <p class="fs-5"><strong>UserID: </strong>{{user.id}}</p>
           <p class="fs-5"><strong>Email: </strong>{{user.email}}</p>
           <p class="fs-5"><strong>Role: </strong>{{user.role}}</p>
-          <hr>
+          <hr />
           {{#if isUser}}
-          <button class="btn btn-warning fw-bold p-2 my-1 d-block mx-auto" onclick="changeRole(`{{user.id}}`)">Switch to
-            premium</button>
+            <button
+              class="btn btn-warning fw-bold p-2 my-1 d-block mx-auto"
+              onclick="changeRole(`{{user.id}}`)"
+            >Switch to premium</button>
           {{/if}}
           {{#if isPremium}}
-          <button class="btn btn-secondary fw-bold p-2 my-1 d-block mx-auto" onclick="changeRole(`{{user.id}}`)">Switch
-            to user</button>
+            <button
+              class="btn btn-secondary fw-bold p-2 my-1 d-block mx-auto"
+              onclick="changeRole(`{{user.id}}`)"
+            >Switch to user</button>
           {{/if}}
         </div>
+      </div>
+
+      <div class="card shadow mt-3 p-3">
+        <!-- Formulario para cargar archivos -->
+        <form
+          enctype="multipart/form-data"
+          method="post"
+          action="/api/users/{{user.id}}/documents"
+        >
+          <div class="mb-3">
+            <label for="fileType" class="form-label">Tipo de archivo</label>
+            <select id="fileType" name="fileType" class="form-select">
+              <option value="profile">Profile Picture</option>
+              <option value="document">Document</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="file" class="form-label">Archivo</label>
+            <input
+              type="file"
+              class="form-control"
+              id="file"
+              name="files"
+              accept=".jpg, .jpeg, .png, .pdf"
+            />
+          </div>
+          <button
+            type="submit"
+            class="btn btn-outline-primary d-block mx-auto"
+          >Cargar Archivo</button>
+        </form>
       </div>
     </div>
   </div>
@@ -73,3 +118,10 @@
     }
   }
 </script>
+
+<style>
+  .user-profile-img { 
+    width: 80px; 
+    height: 80px; 
+    border-radius: 50%; }
+</style>

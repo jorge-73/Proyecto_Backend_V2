@@ -1,5 +1,5 @@
 import passport from "passport";
-import {passportCallCurrent} from "../utils/utils.js";
+import {passportCallCurrent, passportCall} from "../utils/utils.js";
 import appRouter from "./router.js";
 import {
   changePasswordController,
@@ -46,7 +46,7 @@ export default class JWTRouter extends appRouter {
       githubCallbackController);
 
     // Eliminar JWT
-    this.get("/logout", ["PUBLIC"], userLogoutController);
+    this.get("/logout", ["PUBLIC"], passportCall("jwt"), userLogoutController);
     this.get("/error", ["PUBLIC"], errorPageController);
     this.get("/errorResetPass", ["PUBLIC"], errorResetPassController);
     

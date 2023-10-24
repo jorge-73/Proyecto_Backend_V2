@@ -85,7 +85,7 @@ export const getCartViewController = async (req, res) => {
     }
     const carts = cart.products;
     req.app.get("socketio").emit("updatedCarts", carts);
-
+    
     res.render("carts", { carts });
   } catch (error) {
     devLogger.error(error);

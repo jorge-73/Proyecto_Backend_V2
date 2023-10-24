@@ -1,4 +1,4 @@
-import { uploader } from "../utils/utils.js";
+import { uploaders } from "../middlewares/multer.js";
 import {
   addProductsController,
   deleteProductsController,
@@ -14,7 +14,7 @@ export default class ProductsRouter extends appRouter {
 
     this.get("/:pid", ["USER", "ADMIN", "PREMIUM"], getProductsByIdController);
 
-    this.post("/", ["ADMIN", "PREMIUM"], uploader.single("file"), addProductsController);
+    this.post("/", ["ADMIN", "PREMIUM"], uploaders, addProductsController);
 
     this.put("/:pid", ["ADMIN", "PREMIUM"], updateProductsController);
 

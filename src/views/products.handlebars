@@ -40,7 +40,7 @@
 
 {{#if user}}
 <div class="p-3 m-1 border border-dark rounded-3 d-inline-block shadow">
-  <h1>Welcome {{user.role}}: {{user.first_name}} {{user.last_name}} !</h1>
+  <span class="h1 me-2">Welcome {{user.role}}: {{user.first_name}} {{user.last_name}} !</span> {{#if user.profilePicture}} <img src="/img/profiles/{{user.profilePicture}}" alt="{{user.first_name}}_{{user.last_name}}" class="user-profile-img"> {{/if}}
 </div>
 {{/if}}
 
@@ -102,12 +102,12 @@
             To Cart</button>
           <div class="bg-info rounded-circle d-flex align-items-center justify-content-center shadow-1-strong"
             style="width: 35px; height: 35px;">
-            <a href="http://localhost:8080/products/product/{{this._id}}"
+            <a href="/products/product/{{this._id}}"
               class="btn btn-info text-white mb-0 small rounded-circle">Info</a>
           </div>
         </div>
         <div class="aspect-ratio-box">
-          <img src="/img/{{this.thumbnails.[0]}}" class="card-img-top img-fluid p-2 aspect-ratio-box-inside"
+          <img src="/img/products/{{this.thumbnails.[0]}}" class="card-img-top img-fluid p-2 aspect-ratio-box-inside"
             alt="{{this.title}}" />
         </div>
         <div class="card-body">
@@ -150,12 +150,12 @@
             Cart</button>
           <div class="bg-info rounded-circle d-flex align-items-center justify-content-center shadow-1-strong"
             style="width: 35px; height: 35px;">
-            <a href="http://localhost:8080/products/product/{{this._id}}"
+            <a href="/products/product/{{this._id}}"
               class="btn btn-info text-white mb-0 small rounded-circle">Info</a>
           </div>
         </div>
         <div class="aspect-ratio-box">
-          <img src="/img/{{this.thumbnails.[0]}}" class="card-img-top img-fluid p-2 aspect-ratio-box-inside"
+          <img src="/img/products/{{this.thumbnails.[0]}}" class="card-img-top img-fluid p-2 aspect-ratio-box-inside"
             alt="{{this.title}}" />
         </div>
         <div class="card-body">
@@ -214,4 +214,10 @@
     height: 100%;
     object-fit: contain;
   }
+
+  .user-profile-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+}
 </style>

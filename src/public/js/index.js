@@ -86,9 +86,9 @@ socket.on("updatedProducts", (products) => {
         <td>${item.code}</td>
         <td>${item.category}</td>
         <td>${item.stock}</td>
-        <td>
-          <button class="btn btn-danger" onclick="deleteProduct('${item._id}')" id="btnDelete">Delete</button>
-          <button class="btn btn-info" onclick="updatedProduct('${item._id}')" id="btnUpdate">Update</button>
+        <td class="d-flex justify-content-between">
+          <button class="btn btn-danger mx-1" onclick="deleteProduct('${item._id}')" id="btnDelete">Delete</button>
+          <button class="btn btn-info mx-1" onclick="updatedProduct('${item._id}')" id="btnUpdate">Update</button>
         </td>
         <td id="editForm_${item._id}" style="display: none;">
           <div class="product-edit-form">

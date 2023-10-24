@@ -25,17 +25,16 @@ export const getProductsByIdController = async (req, res) => {
 
 export const addProductsController = async (req, res) => {
   try {
-    if (!req.file) {
+    if (!req.files) {
       devLogger.info("No image");
     }
     if (!req.body)
       return res.sendUserError("Product no can be created without properties");
-
     let product = {
       title: req.body.title,
       description: req.body.description,
       price: parseFloat(req.body.price),
-      thumbnails: [req?.file?.originalname] || [],
+      thumbnails: [req?.files[0]?.originalname] || [],
       code: req.body.code,
       category: req.body.category,
       stock: parseInt(req.body.stock),

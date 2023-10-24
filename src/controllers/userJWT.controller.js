@@ -16,7 +16,7 @@ export const userRegisterController = async (req, res) => {
   // Filtro solo los datos necesarios para enviar por mail
   const userEmail = new UserEmailDTO(req.user);
   // Creo el email de bienvenida con los datos devueltos por dto
-//  await sendEmailRegister(userEmail);
+  await sendEmailRegister(userEmail);
   res.redirect("/api/jwt/login");
 };
 
@@ -60,8 +60,22 @@ export const githubCallbackController = async (req, res) => {
     .redirect("/products");
 };
 
-export const userLogoutController = (req, res) => {
-  res.clearCookie(SIGNED_COOKIE_KEY).redirect("/api/jwt/login");
+export const userLogoutController = async (req, res) => {
+  try {
+    const user = req.user?.user;
+    if (user) {
+      // Actualizar solo la propiedad last_connection
+      user.last_connection = new Date();
+      await UserService.update(user._id, { last_connection: user.last_connection });
+    }
+    res.clearCookie(SIGNED_COOKIE_KEY).redirect("/api/jwt/login");
+  } catch (error) {
+    devLogger.error(error);
+    res.render("errors/errorPage", {
+      status: "error",
+      error: "Error during logout",
+    });
+  }
 };
 
 export const errorPageController = (req, res) => {
