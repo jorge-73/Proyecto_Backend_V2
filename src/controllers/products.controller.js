@@ -1,4 +1,6 @@
+import { sendingEmailDeletedProduct } from "../services/nodemailer/mailer.js";
 import { ProductService } from "../services/products.service.js";
+import { UserService } from "../services/users.service.js";
 import { devLogger } from "../utils/logger.js";
 
 export const getProductsController = async (req, res) => {
@@ -106,7 +108,12 @@ export const deleteProductsController = async (req, res) => {
         "You are not authorized to delete this product."
       );
     }
-
+    // Si el producto eliminado es propiedad de un usuario premium enviamos el email
+    // informando de su eliminación
+    if (product.owner !== "admin") {
+      const owner = await UserService.findById(product.owner);
+      owner && await sendingEmailDeletedProduct(owner, product);
+    }
     // Si llegamos hasta aquí, el usuario es un administrador o el producto le pertenece
     const result = await ProductService.delete(pid);
     if (!result) {

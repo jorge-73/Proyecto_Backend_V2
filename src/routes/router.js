@@ -70,6 +70,8 @@ export default class appRouter {
     res.sendSuccess = (payload) => res.json({ status: "success", payload });
     res.createdSuccess = (payload) =>
       res.status(201).json({ status: "success", payload });
+    res.sendNoContent = (payload) =>
+      res.status(204).json({ status: "success", payload });
     res.sendServerError = (error) =>
       res.status(500).json({ status: "error", error });
     res.sendUserError = (error) =>
@@ -94,10 +96,11 @@ export default class appRouter {
     // Obtenemos el usuario a partir del token;
     let user = jwt.verify(token, PRIVATE_KEY);
     // ¿El rol del usuario existe dentro del arreglo de políticas?
-    if(!policies.includes(user.user.role.toUpperCase())) return res.status(403).render("errors/errorPage", {
-      status: "error",
-      error: "No authorized",
-    });
+    if (!policies.includes(user.user.role.toUpperCase()))
+      return res.status(403).render("errors/errorPage", {
+        status: "error",
+        error: "No authorized",
+      });
     // json({status:"error", error:"No authorized"});
     req.user = user;
     next();

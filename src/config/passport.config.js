@@ -82,6 +82,11 @@ const initializePassport = () => {
           if (!user || !isValidPassword(user, password)) {
             return done(null, false);
           }
+          // Actualizar solo la propiedad last_connection
+          user.last_connection = new Date();
+          await UserService.update(user._id, {
+            last_connection: user.last_connection,
+          });
           return done(null, user);
         } catch (error) {
           devLogger.error(error);
@@ -109,6 +114,11 @@ const initializePassport = () => {
           if (existingUser) {
             // Si el usuario ya existe en la base de datos, generamos el token
             const token = generateToken(existingUser);
+            // Actualizar solo la propiedad last_connection
+            user.last_connection = new Date();
+            await UserService.update(user._id, {
+              last_connection: user.last_connection,
+            });
             // Enviamos el token como una cookie en la respuesta
             return done(null, existingUser, { token });
           }
@@ -124,7 +134,6 @@ const initializePassport = () => {
             newUser.role = "admin";
           }
           const result = await UserService.create(newUser);
-          console.log(result);
           // Filtro solo los datos necesarios para enviar por mail
           const userSendEmail = new UserEmailDTO(result);
           // Creo el email de bienvenida con los datos devueltos por dto

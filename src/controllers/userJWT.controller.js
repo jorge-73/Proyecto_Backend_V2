@@ -62,12 +62,6 @@ export const githubCallbackController = async (req, res) => {
 
 export const userLogoutController = async (req, res) => {
   try {
-    const user = req.user?.user;
-    if (user) {
-      // Actualizar solo la propiedad last_connection
-      user.last_connection = new Date();
-      await UserService.update(user._id, { last_connection: user.last_connection });
-    }
     res.clearCookie(SIGNED_COOKIE_KEY).redirect("/api/jwt/login");
   } catch (error) {
     devLogger.error(error);
@@ -86,11 +80,20 @@ export const errorResetPassController = (req, res) => {
   res.render("errors/errorResetPass");
 };
 
-export const userCurrentController = (req, res) => {
-  const user = new UserDTO(req.user);
-  const isUser = user.role === "user" ? true : false;
-  const isPremium = user.role === "premium" ? true : false;
-  res.render("sessions/current", { user, isUser, isPremium });
+export const userCurrentController = async (req, res) => {
+  try {
+    const findUsers = await UserService.find();
+    const allUsers = findUsers.map((user) => new UserDTO(user));
+    const users = allUsers.filter((user) => user.role !== "admin");
+
+    const user = new UserDTO(req.user);
+    const isAdmin = user.role === "admin" ? true : false;
+    const isUser = user.role === "user" ? true : false;
+    const isPremium = user.role === "premium" ? true : false;
+    res.render("sessions/current", { user, users, isUser, isPremium, isAdmin });
+  } catch (error) {
+    devLogger.error(error);
+  }
 };
 
 export const passwordResetController = (req, res) => {

@@ -1,4 +1,6 @@
+import { sendAccountDeletedEmail } from "../services/nodemailer/mailer.js";
 import { UserService } from "../services/users.service.js";
+import UserDTO from "../dto/users.dto.js";
 import { devLogger } from "../utils/logger.js";
 
 export const updatedUserRoleController = async (req, res) => {
@@ -27,7 +29,9 @@ export const updatedUserRoleController = async (req, res) => {
     } else {
       if (user.status !== true) {
         devLogger.error("User has not completed document processing");
-        return res.sendRequestError("User has not completed document processing");
+        return res.sendRequestError(
+          "User has not completed document processing"
+        );
       }
       user.role = "premium";
     }
@@ -40,7 +44,6 @@ export const updatedUserRoleController = async (req, res) => {
     res.sendServerError(error.message);
   }
 };
-
 
 export const addFilesController = async (req, res) => {
   try {
@@ -70,8 +73,53 @@ export const addFilesController = async (req, res) => {
       // Actualizar el estado a true cuando se carga un documento.
       user.status = true;
     }
-    const updatedUser = await UserService.update(uid, user);
-    res.sendSuccess(updatedUser);
+    await UserService.update(uid, user);
+    res.sendSuccess("File uploaded successfully");
+  } catch (error) {
+    devLogger.error(error.message);
+    res.sendServerError(error.message);
+  }
+};
+
+export const deleteUserController = async (req, res) => {
+  try {
+    const uid = req.params.uid;
+    const findUser = await UserService.findById(uid);
+    if (findUser) {
+      const user = new UserDTO(findUser);
+      await sendAccountDeletedEmail(user);
+    }
+    await UserService.delete(uid);
+    res.sendSuccess("User is delete");
+  } catch (error) {
+    devLogger.error(error.message);
+    res.sendServerError(error.message);
+  }
+};
+
+export const deleteInactiveUsersController = async (req, res) => {
+  try {
+    const currentDate = new Date();
+    const twoDaysAgo = new Date(currentDate);
+    twoDaysAgo.setDate(currentDate.getDate() - 2);
+    /* const thirtyMinutesAgo = new Date(currentDate);
+    thirtyMinutesAgo.setMinutes(currentDate.getMinutes() - 30); */
+    const findInactiveUsers = await UserService.findInactiveUsers(twoDaysAgo);
+    const users = findInactiveUsers.map((user) => new UserDTO(user));
+    const inactiveUsers = users.filter((user) => user.role !== "admin");
+    // Eliminar usuarios inactivos
+    if (inactiveUsers.length > 0) {
+      for (const user of inactiveUsers) {
+        if (user.role !== "admin") {
+          await UserService.delete(user.id);
+          // Envio del correo de notificación
+          await sendAccountDeletedEmail(user);
+        }
+      }
+      res.sendSuccess("Inactive users have been cleaned up.");
+    } else {
+      res.sendNoContent("No inactive users to clean up.");
+    }
   } catch (error) {
     devLogger.error(error.message);
     res.sendServerError(error.message);

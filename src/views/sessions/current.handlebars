@@ -8,7 +8,7 @@
 </nav>
 <div class="container min-vh-100">
   <div class="row">
-    <div class="col-md-4 offset-md-4 py-5 my-5">
+    <div class="col-md-4 offset-md-4 py-3 my-3">
       <h1 class="text-center p-3 fw-bold">User Profile</h1>
       <div class="card shadow">
         <div class="px-4 py-2">
@@ -27,17 +27,11 @@
           <p class="fs-5"><strong>Email: </strong>{{user.email}}</p>
           <p class="fs-5"><strong>Role: </strong>{{user.role}}</p>
           <hr />
-          {{#if isUser}}
-            <button
-              class="btn btn-warning fw-bold p-2 my-1 d-block mx-auto"
-              onclick="changeRole(`{{user.id}}`)"
-            >Switch to premium</button>
-          {{/if}}
-          {{#if isPremium}}
+          {{#if isAdmin}}
             <button
               class="btn btn-secondary fw-bold p-2 my-1 d-block mx-auto"
-              onclick="changeRole(`{{user.id}}`)"
-            >Switch to user</button>
+              onclick="deleteInactiveUsers()"
+            >Delete Inactive users</button>
           {{/if}}
         </div>
       </div>
@@ -74,16 +68,36 @@
       </div>
     </div>
   </div>
+
+  <div class="row">
+    {{#if isAdmin}}
+    {{#each users}}
+    <div class="col-md-4">  
+      <div class="card shadow text-center my-1">
+        <p class="h4 pt-2">{{this.full_name}}</>
+        <hr>
+        <p class="h5 fw-bold">{{this.email}}</p>
+        <p class="h5 fw-bold">{{this.role}}</p>
+        <hr>
+      <div class="d-flex justify-content-around">
+        <button
+          class="btn btn-secondary fw-bold m-2"
+          onclick="changeRole(`{{this.id}}`)"
+        >Switch to user</button>
+        <button 
+        class="btn btn-danger fw-bold m-2"
+        onclick="deleteUser(`{{this.id}}`)"
+        >Delete user</button>
+      </div>
+      </div>
+    </div>
+    {{/each}}
+    {{/if}}
+  </div>
 </div>
 
 <script>
-  const changeRole = async (id) => {
-    try {
-      const res = await fetch(`/api/users/premium/${id}`, {
-        method: "POST",
-      });
-
-      const message = (message, color) => {
+  const message = (message, color) => {
         return Toastify({
           text: `${message}`,
           duration: 2000,
@@ -99,28 +113,61 @@
         }).showToast();
       }
 
+  const changeRole = async (id) => {
+    try {
+      const res = await fetch(`/api/users/premium/${id}`, {
+        method: "POST",
+      });
       if (res.ok) {
         message("User role updated successfully", "#008000");
-        const logoutResponse = await fetch('/api/jwt/logout');
-        if (logoutResponse.ok) {
-          setTimeout(async () => {
-            window.location.href = "/api/jwt/login";
-          }, 2000);
-        } else {
-          message("Logout failed.", "#ff0000");
-        }
+        setTimeout(async () => {
+          window.location.reload();
+        }, 2000);
       } else {
         message("Error updating user role", "#ff0000");
       }
-
     } catch (error) {
-      console.error(error);
+      message(error, "#ff0000");
     }
   }
+
+  const deleteUser = async (id) => {
+    try {
+      const res = await fetch(`/api/users/${id}`, {
+        method: "DELETE",
+      });
+      if(res.ok) {
+      message("User is deleted successfully", "#008000");
+        setTimeout(async () => {
+            window.location.reload();
+          }, 2000);
+      } else {
+      message("Error deleted user role", "#ff0000");
+      }
+    } catch {
+      message(error, "#ff0000");
+    }
+  }
+
+  const deleteInactiveUsers = async () => {
+    try {
+      const res = await fetch(`/api/users/inactiveUsers`, {
+        method: "DELETE",
+      });
+      if(res.status === 200) {
+      message("Users is deleted successfully", "#008000");
+      } else {
+      message("No inactive users to clean up", "#006000");
+      }
+    } catch {
+      message(error, "#ff0000");
+    }
+  }
+
 </script>
 
 <style>
-  .user-profile-img { 
+  .user-profile-img {
     width: 80px; 
     height: 80px; 
     border-radius: 50%; }

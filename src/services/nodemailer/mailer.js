@@ -171,3 +171,95 @@ export const emailResetPassword = async (userEmail, tokenLink) => {
     throw error;
   }
 };
+
+export const sendAccountDeletedEmail = async (userEmail) => {
+  let config = {
+    service: "gmail",
+    auth: {
+      user: NODEMAILER_USER,
+      pass: NODEMAILER_PASS,
+    },
+  };
+
+  let transporter = nodemailer.createTransport(config);
+
+  let Mailgenerator = new Mailgen({
+    theme: "default",
+    product: {
+      name: "Ecommerce",
+      link: "http://localhost:8080",
+    },
+  });
+
+  let content = {
+    body: {
+      name: userEmail.full_name,
+      intro: `We're sorry to inform you that your account at ${userEmail.email} has been deleted due to inactivity.`,
+      outro: `If you believe this is an error or want to reactivate your account, please contact our support team.`,
+      signature: false,
+    },
+  };
+
+  let mail = Mailgenerator.generate(content);
+
+  let message = {
+    from: NODEMAILER_USER,
+    to: userEmail.email,
+    subject: "Account Deletion Due to Inactivity",
+    html: mail,
+  };
+
+  try {
+    const email = await transporter.sendMail(message);
+    return email;
+  } catch (error) {
+    devLogger.error(error);
+    throw error;
+  }
+};
+
+export const sendingEmailDeletedProduct = async (user, product) => {
+  let config = {
+    service: "gmail",
+    auth: {
+      user: NODEMAILER_USER,
+      pass: NODEMAILER_PASS,
+    },
+  };
+
+  let transporter = nodemailer.createTransport(config);
+
+  let Mailgenerator = new Mailgen({
+    theme: "default",
+    product: {
+      name: "Ecommerce",
+      link: "http://localhost:8080",
+    },
+  });
+
+  let content = {
+    body: {
+      name: `${user.first_name} ${user.last_name}`,
+      intro: `We're sorry to inform you that your product "${product.title}", code "${product.code}" has been deleted.`,
+      outro: `If you have any questions or concerns, please feel free to contact our support team.`,
+      signature: false,
+    },
+  };
+
+  let mail = Mailgenerator.generate(content);
+
+  let message = {
+    from: NODEMAILER_USER,
+    to: user.email,
+    subject: `Notification: Product Deleted`,
+    html: mail,
+  };
+
+  try {
+    const email = await transporter.sendMail(message);
+    return email;
+  } catch (error) {
+    devLogger.error(error);
+    throw error;
+  }
+};
