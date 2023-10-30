@@ -31,7 +31,7 @@ export const createPaymentsController = async (req, res) => {
       success_url: `http://localhost:${PORT}/api/payments/success`,
       cancel_url: `http://localhost:${PORT}/api/payments/cancel`,
     });
-    //return res.sendSuccess(sessions)
+    
     return res.redirect(sessions.url);
   } catch (error) {
     devLogger.error(error);
