@@ -9,6 +9,7 @@ import appRouter from "./routes/router.js";
 import { passportCall } from "./utils/utils.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
 import UsersRouter from "./routes/users.router.js";
+import PaymentsRouter from "./routes/payments.router.js";
 
 const run = (io, app) => {
   app.use((req, res, next) => {
@@ -25,6 +26,8 @@ const run = (io, app) => {
   app.use("/api/jwt", jwtrouter.getRouter());
   const usersRouter = new UsersRouter();
   app.use("/api/users", passportCall("jwt"), usersRouter.getRouter());
+  const paymentsRouter = new PaymentsRouter();
+  app.use("/api/payments", passportCall("jwt"), paymentsRouter.getRouter());
   // Ruta para las vistas de productos
   const viewsProductsRouter = new ViewsProductsRouter();
   app.use("/products", passportCall("jwt"), viewsProductsRouter.getRouter());

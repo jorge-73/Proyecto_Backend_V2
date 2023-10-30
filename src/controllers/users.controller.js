@@ -74,7 +74,7 @@ export const addFilesController = async (req, res) => {
       user.status = true;
     }
     await UserService.update(uid, user);
-    res.sendSuccess("File uploaded successfully");
+    res.redirect("/api/jwt/current");
   } catch (error) {
     devLogger.error(error.message);
     res.sendServerError(error.message);

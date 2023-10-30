@@ -82,11 +82,12 @@ const purchaseProducts = async () => {
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, confirm!",
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        setTimeout(() => {
+        window.location.href = `/api/payments/createCheckout`;
+        /* setTimeout(() => {
           window.location.href = `/api/carts/${cartEmpty}/purchase`;
-        }, 500);
+        }, 500); */
       }
     });
   } catch (error) {

@@ -152,6 +152,7 @@ export const deleteProductInCartController = async (req, res) => {
 export const getPurchaseController = async (req, res) => {
   try {
     const result = await purchaseService(req, res);
+    console.log(result);
     return result;
   } catch (error) {
     devLogger.error(error);
