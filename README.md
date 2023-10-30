@@ -14,3 +14,4 @@
 - NODEMAILER_USER
 - NODEMAILER_PASS
 - ENVIRONMENT Para producción o para desarrollo
+- STRIPE_API_KEY Para agregar pasarela de pago Stripe
