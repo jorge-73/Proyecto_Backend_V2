@@ -28,8 +28,8 @@ export const createPaymentsController = async (req, res) => {
     const sessions = await stripe.checkout.sessions.create({
       line_items: lineItems,
       mode: "payment",
-      success_url: `http://localhost:${PORT}/api/payments/success`,
-      cancel_url: `http://localhost:${PORT}/api/payments/cancel`,
+      success_url: `/api/payments/success`,
+      cancel_url: `/api/payments/cancel`,
     });
     
     return res.redirect(sessions.url);
