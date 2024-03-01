@@ -144,7 +144,7 @@ const initializePassport = () => {
           return done(null, result, { token });
         } catch (error) {
           devLogger.error(error);
-          return done("Error getting user");
+          return done("Error getting user" + error);
         }
       }
     )
