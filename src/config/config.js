@@ -23,3 +23,4 @@ export const ENVIRONMENT = process.env.ENVIRONMENT;
 
 export const STRIPE_API_KEY = process.env.STRIPE_API_KEY;
 export const RAILWAY_URL = process.env.RAILWAY_URL;
+export const RENDER_URL = process.env.RENDER_URL;
