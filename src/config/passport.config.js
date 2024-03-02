@@ -111,7 +111,6 @@ const initializePassport = () => {
           const userEmail = profile._json.email;
           const existingUser = await UserService.findOne({ email: userEmail });
           if (existingUser) {
-            devLogger.info(existingUser);
             // Si el usuario ya existe en la base de datos, generamos el token
             const token = generateToken(existingUser);
             // Actualizar solo la propiedad last_connection
@@ -119,7 +118,7 @@ const initializePassport = () => {
             await UserService.update(user._id, {
               last_connection: user.last_connection,
             });
-            devLogger.info(token);
+            devLogger.info(user);
             // Enviamos el token como una cookie en la respuesta
             return done(null, existingUser, { token });
           }
