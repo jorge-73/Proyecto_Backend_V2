@@ -118,7 +118,6 @@ const initializePassport = () => {
             await UserService.update(existingUser._id, {
               last_connection: existingUser.last_connection,
             });
-            devLogger.info(existingUser);
             // Enviamos el token como una cookie en la respuesta
             return done(null, existingUser, { token });
           }
