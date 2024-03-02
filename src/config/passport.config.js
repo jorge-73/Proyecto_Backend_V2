@@ -106,10 +106,10 @@ const initializePassport = () => {
       },
       async (accessTocken, refreshToken, profile, done) => {
         try {
-          // devLogger.info(JSON.stringify(profile));
+          devLogger.info(JSON.stringify(profile));
           const userName = profile.displayName || profile.username;
           const userEmail = profile._json.email;
-
+          devLogger.info(userName, userEmail);
           const existingUser = await UserService.findOne({ email: userEmail });
           if (existingUser) {
             // Si el usuario ya existe en la base de datos, generamos el token
