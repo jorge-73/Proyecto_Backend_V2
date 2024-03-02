@@ -114,11 +114,11 @@ const initializePassport = () => {
             // Si el usuario ya existe en la base de datos, generamos el token
             const token = generateToken(existingUser);
             // Actualizar solo la propiedad last_connection
-            user.last_connection = new Date();
-            await UserService.update(user._id, {
-              last_connection: user.last_connection,
+            existingUser.last_connection = new Date();
+            await UserService.update(existingUser._id, {
+              last_connection: existingUser.last_connection,
             });
-            devLogger.info(user);
+            devLogger.info(existingUser);
             // Enviamos el token como una cookie en la respuesta
             return done(null, existingUser, { token });
           }
